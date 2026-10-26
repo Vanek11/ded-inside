@@ -27,5 +27,21 @@ public static class SceneSetup
 
         Debug.Log("[DeadInside] Сцена Village1 построена и сохранена. Жми Play!");
     }
+
+    /// Для batchmode: строит сцену без диалогов (Unity -executeMethod SceneSetup.BuildVillage1Auto).
+    public static void BuildVillage1Auto()
+    {
+        var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+        var levelGo = new GameObject("Level");
+        levelGo.AddComponent<LevelVillage1>(); // Awake строит уровень прямо в редакторе
+
+        System.IO.Directory.CreateDirectory("Assets/Scenes");
+        EditorSceneManager.SaveScene(scene, "Assets/Scenes/Village1.unity");
+        EditorBuildSettings.scenes = new[]
+            { new EditorBuildSettingsScene("Assets/Scenes/Village1.unity", true) };
+
+        Debug.Log("[DeadInside] AUTO: сцена Village1 построена и сохранена.");
+    }
 }
 #endif

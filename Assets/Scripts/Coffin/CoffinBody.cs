@@ -19,7 +19,7 @@ namespace DI
         Joint lidJoint;
         bool lidChecked;
         Collider[] ownCols;
-        PhysicMaterial grip, ice;
+        PhysicsMaterial grip, ice;
         float lastCreak;
 
         public bool LidClosed => lidJoint != null;
@@ -37,8 +37,8 @@ namespace DI
                 if (!c.isTrigger && c.attachedRigidbody == rb) list.Add(c);
             ownCols = list.ToArray();
 
-            grip = new PhysicMaterial("coffin_grip") { dynamicFriction = 0.65f, staticFriction = 0.75f };
-            ice = new PhysicMaterial("coffin_slide") { dynamicFriction = 0.03f, staticFriction = 0.05f };
+            grip = new PhysicsMaterial("coffin_grip") { dynamicFriction = 0.65f, staticFriction = 0.75f };
+            ice = new PhysicsMaterial("coffin_slide") { dynamicFriction = 0.03f, staticFriction = 0.05f };
             SetMaterial(grip);
         }
 
@@ -69,7 +69,7 @@ namespace DI
             }
         }
 
-        void SetMaterial(PhysicMaterial m)
+        void SetMaterial(PhysicsMaterial m)
         {
             foreach (var c in ownCols) c.sharedMaterial = m;
         }
