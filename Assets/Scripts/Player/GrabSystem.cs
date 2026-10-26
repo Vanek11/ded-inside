@@ -8,6 +8,7 @@ namespace DI
     public class GrabSystem : MonoBehaviour
     {
         public float reach = 3.4f;
+        public float holdDistance = 1.4f; // на каком расстоянии от тела висит схваченное
         public float spring = 2200f;
         public float damping = 220f;
         public float maxForcePerHand = 1100f;
@@ -25,9 +26,6 @@ namespace DI
         {
             hand = new GameObject("HandAnchor").transform;
             hand.SetParent(transform, false);
-            // точка руки — прямо перед грудью: объект висит ПЕРЕД игроком,
-            // а не тянулся в него (раньше был метр вперёд — объект упирался и толкал)
-            hand.localPosition = new Vector3(0.4f, 1.05f, 0.55f);
         }
 
         void Update()
@@ -35,6 +33,20 @@ namespace DI
             bool want = Input.GetMouseButton(0);
             if (want && held == null) TryGrab();
             else if (!want && held != null) held = null;
+            UpdateHandAnchor();
+        }
+
+        /// Точка руки едет по лучу взгляда камеры: повёл мышь вверх — рука вверх,
+        /// вбок — вбок. Схваченное пружиной тянется за ней, физика честная.
+        void UpdateHandAnchor()
+        {
+            var cam = Camera.main;
+            if (cam == null) return;
+
+            Vector3 anchor = transform.position + Vector3.up * 0.9f
+                             + cam.transform.forward * holdDistance;
+            anchor.y = Mathf.Max(anchor.y, transform.position.y + 0.25f); // не тащить под пол
+            hand.position = anchor;
         }
 
         void TryGrab()
