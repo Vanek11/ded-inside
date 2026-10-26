@@ -9,15 +9,19 @@ namespace DI
     {
         public float reach = 3.4f;
         public float holdDistance = 1.4f; // на каком расстоянии от тела висит схваченное
-        public float spring = 2200f;
-        public float damping = 220f;
+        public float spring = 3000f;
+        public float damping = 220f;      // базовое значение; при захвате пересчитывается от массы
         public float maxForcePerHand = 1100f;
         public float heavyMass = 60f;
         public float reactionOnPlayer = 0.55f; // сколько веса чувствуем (горизонтальная отдача)
+        public float mouseLiftSpeed = 2.4f;    // скорость подъёма руки мышью, м/с
 
         Transform hand;
         Rigidbody held;
         Vector3 localPoint;
+        float heldMass = 1f;
+        float holdHeight = 0.9f;
+        ThirdPersonCamera camCtrl;
 
         public bool IsHolding => held != null;
         public bool IsCarryingHeavy => held != null && held.mass >= heavyMass;
@@ -32,21 +36,32 @@ namespace DI
         {
             bool want = Input.GetMouseButton(0);
             if (want && held == null) TryGrab();
-            else if (!want && held != null) held = null;
+            else if (!want && held != null)
+            {
+                held = null;
+                holdHeight = 0.9f;
+            }
             UpdateHandAnchor();
+
+            if (camCtrl == null) camCtrl = GetComponentInChildren<ThirdPersonCamera>();
+            if (camCtrl != null) camCtrl.freezePitch = held != null; // мышь управляет высотой руки, а не наклоном камеры
         }
 
-        /// Точка руки едет по лучу взгляда камеры: повёл мышь вверх — рука вверх,
-        /// вбок — вбок. Схваченное пружиной тянется за ней, физика честная.
+        /// Горизонт — по направлению взгляда, высота — напрямую мышью:
+        /// тянешь мышь вверх при удержании, рука едет вверх (до 2.6 м).
         void UpdateHandAnchor()
         {
             var cam = Camera.main;
             if (cam == null) return;
 
-            Vector3 anchor = transform.position + Vector3.up * 0.9f
-                             + cam.transform.forward * holdDistance;
-            anchor.y = Mathf.Max(anchor.y, transform.position.y + 0.25f); // не тащить под пол
-            hand.position = anchor;
+            if (held != null)
+                holdHeight = Mathf.Clamp(holdHeight + Input.GetAxis("Mouse Y") * mouseLiftSpeed * Time.deltaTime,
+                    0.25f, 2.6f);
+
+            Vector3 flat = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
+            if (flat.sqrMagnitude < 0.01f) flat = Vector3.forward;
+
+            hand.position = transform.position + flat * holdDistance + Vector3.up * holdHeight;
         }
 
         void TryGrab()
@@ -68,6 +83,7 @@ namespace DI
             if (target == null || target.isKinematic) return;
 
             held = target;
+            heldMass = Mathf.Max(1f, target.mass);
             localPoint = target.transform.InverseTransformPoint(hit.point);
             DIGameManager.I?.Event("Взялись!");
         }
@@ -87,9 +103,13 @@ namespace DI
         {
             if (held == null) return;
 
+            // демпфер критический относительно массы схваченного: без «резинки»
+            // и без вечных колебаний и для 10-кг крышки, и для 120-кг гроба
+            float damp = 2f * Mathf.Sqrt(spring * heldMass) * 0.9f;
+
             Vector3 point = held.transform.TransformPoint(localPoint);
             Vector3 vel = held.GetPointVelocity(point);
-            Vector3 force = (hand.position - point) * spring - vel * damping;
+            Vector3 force = (hand.position - point) * spring - vel * damp;
             if (force.sqrMagnitude > maxForcePerHand * maxForcePerHand)
                 force = force.normalized * maxForcePerHand;
             held.AddForceAtPosition(force, point);

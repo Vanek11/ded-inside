@@ -250,6 +250,7 @@ namespace DI
         {
             var go = new GameObject("Player");
             go.tag = "Player";
+            go.layer = LayerMask.NameToLayer("Player"); // нужен проверке земли
             go.transform.position = new Vector3(1.5f, 1.2f, -15f);
 
             var col = go.AddComponent<CapsuleCollider>();

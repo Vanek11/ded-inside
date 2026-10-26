@@ -10,6 +10,7 @@ namespace DI
         public float height = 1.9f;
         public float sensitivity = 3f;
         public float pitch = 18f;
+        public bool freezePitch; // когда держим объект: мышь вверх/вниз = высота руки
 
         float yaw;
 
@@ -31,7 +32,8 @@ namespace DI
             if (!target) return;
 
             yaw += Input.GetAxis("Mouse X") * sensitivity;
-            pitch = Mathf.Clamp(pitch - Input.GetAxis("Mouse Y") * sensitivity, -15f, 70f);
+            if (!freezePitch)
+                pitch = Mathf.Clamp(pitch - Input.GetAxis("Mouse Y") * sensitivity, -15f, 70f);
 
             var rot = Quaternion.Euler(pitch, yaw, 0f);
             Vector3 pos = target.position + Vector3.up * height - rot * Vector3.forward * distance;
