@@ -10,7 +10,7 @@ namespace DI
         public float reach = 3.4f;
         public float spring = 2200f;
         public float damping = 160f;
-        public float maxForcePerHand = 950f;
+        public float maxForcePerHand = 1100f;
         public float heavyMass = 60f;
 
         Transform hand;
@@ -42,8 +42,12 @@ namespace DI
             int mask = LayerMask.GetMask("Grabbable", "Grandpa");
             if (mask == 0) mask = ~0;
 
-            if (!Physics.Raycast(cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)), out var hit, reach, mask))
+            // луч — через центр экрана, но дистанция захвата меряется ОТ ИГРОКА,
+            // а не от камеры (камера висит в 5-6 м позади спины)
+            if (!Physics.Raycast(cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)), out var hit, 100f, mask))
                 return;
+
+            if (Vector3.Distance(transform.position, hit.point) > reach) return;
 
             var target = hit.rigidbody;
             if (target == null || target.isKinematic) return;
@@ -51,6 +55,17 @@ namespace DI
             held = target;
             localPoint = target.transform.InverseTransformPoint(hit.point);
             DIGameManager.I?.Event("Взялись!");
+        }
+
+        void OnGUI()
+        {
+            // прицел: белый пока руки пустые, зелёный пока что-то держим
+            var prev = GUI.color;
+            GUI.color = held != null ? new Color(0.4f, 1f, 0.4f) : Color.white;
+            var style = new GUIStyle(GUI.skin.label) { fontSize = 26, alignment = TextAnchor.MiddleCenter };
+            GUI.Label(new Rect(Screen.width / 2f - 30f, Screen.height / 2f - 25f, 60f, 50f),
+                held != null ? "\u25CF" : "+", style);
+            GUI.color = prev;
         }
 
         void FixedUpdate()
