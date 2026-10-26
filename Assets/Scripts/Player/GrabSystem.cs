@@ -9,9 +9,10 @@ namespace DI
     {
         public float reach = 3.4f;
         public float spring = 2200f;
-        public float damping = 160f;
+        public float damping = 220f;
         public float maxForcePerHand = 1100f;
         public float heavyMass = 60f;
+        public float reactionOnPlayer = 0.55f; // сколько веса чувствуем (горизонтальная отдача)
 
         Transform hand;
         Rigidbody held;
@@ -24,7 +25,9 @@ namespace DI
         {
             hand = new GameObject("HandAnchor").transform;
             hand.SetParent(transform, false);
-            hand.localPosition = new Vector3(0.5f, 1.1f, 1.0f);
+            // точка руки — прямо перед грудью: объект висит ПЕРЕД игроком,
+            // а не тянулся в него (раньше был метр вперёд — объект упирался и толкал)
+            hand.localPosition = new Vector3(0.4f, 1.05f, 0.55f);
         }
 
         void Update()
@@ -78,6 +81,12 @@ namespace DI
             if (force.sqrMagnitude > maxForcePerHand * maxForcePerHand)
                 force = force.normalized * maxForcePerHand;
             held.AddForceAtPosition(force, point);
+
+            // отдача веса на игрока: горизонтальная составляющая тянет назад,
+            // вертикальную гасим (иначе персонажа подкидывает)
+            var prb = GetComponent<Rigidbody>();
+            Vector3 reaction = -force * reactionOnPlayer;
+            prb.AddForce(new Vector3(reaction.x, 0f, reaction.z));
         }
     }
 }
