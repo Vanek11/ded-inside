@@ -45,7 +45,12 @@ namespace DI
             Trees();
             CoffinAndGrandpa();
             Player();
+            BuildCane();
+            WillPost();
             Checkpoints();
+
+            if (SessionState.Mode != SessionMode.Solo)
+                gameObject.AddComponent<DINetworkManager>().Bootstrap(SessionState.Mode, SessionState.Ip);
         }
 
         public void OnCheckpoint(CheckpointZone cp) =>
@@ -207,10 +212,11 @@ namespace DI
             Tree(-9f, 44f); Tree(10f, 55f); Tree(-11f, 66f); Tree(11f, 86f);
         }
 
-        static void Goose(float x, float z)
+        public static GameObject SpawnGoose(Vector3 position)
         {
-            var go = new GameObject($"Goose_{x}_{z}");
-            go.transform.position = new Vector3(x, Ground(x, z) + 0.4f, z);
+            var go = new GameObject($"Goose_{position.x}_{position.z}");
+            go.transform.position = position;
+            go.AddComponent<NetDynamicMarker>();
             var rb = go.AddComponent<Rigidbody>();
             rb.mass = 6f;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -234,6 +240,50 @@ namespace DI
             Object.DestroyImmediate(beak.GetComponent<Collider>());
 
             go.AddComponent<JumpScare>();
+            return go;
+        }
+
+        static void Goose(float x, float z) => SpawnGoose(new Vector3(x, Ground(x, z) + 0.4f, z));
+
+        static void BuildCane()
+        {
+            var cane = new GameObject("Cane");
+            cane.layer = LayerMask.NameToLayer("Grabbable");
+            cane.transform.position = new Vector3(2.4f, 0.35f, -17.5f);
+            cane.transform.rotation = Quaternion.Euler(0f, 25f, 0f);
+            cane.AddComponent<NetDynamicMarker>();
+
+            var rb = cane.AddComponent<Rigidbody>();
+            rb.mass = 2f;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+
+            var stick = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            stick.name = "Stick";
+            stick.transform.SetParent(cane.transform, false);
+            stick.transform.localScale = new Vector3(0.12f, 0.5f, 0.12f);
+            stick.transform.localPosition = new Vector3(0f, 0.5f, 0f);
+            stick.GetComponent<Renderer>().material.color = new Color(0.42f, 0.28f, 0.14f);
+
+            var handle = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            handle.name = "Handle";
+            handle.transform.SetParent(cane.transform, false);
+            handle.transform.localScale = new Vector3(0.18f, 0.18f, 0.18f);
+            handle.transform.localPosition = new Vector3(0f, 1.05f, 0f);
+            handle.GetComponent<Renderer>().material.color = new Color(0.2f, 0.14f, 0.08f);
+        }
+
+        static void WillPost()
+        {
+            Slab("WillPost", new Vector3(5.5f, 1.1f, 40f), new Vector3(0.25f, 2.2f, 0.25f), 0f, Wood);
+            Slab("Mailbox", new Vector3(5.5f, 2.35f, 40f), new Vector3(0.7f, 0.5f, 0.45f), 0f,
+                new Color(0.35f, 0.55f, 0.3f));
+
+            var zone = new GameObject("WillZone");
+            var col = zone.AddComponent<BoxCollider>();
+            col.isTrigger = true;
+            col.size = new Vector3(4f, 2.5f, 4f);
+            zone.transform.position = new Vector3(5.5f, 1.2f, 40f);
+            zone.AddComponent<WillZone>();
         }
 
         static void CoffinAndGrandpa()
@@ -248,41 +298,7 @@ namespace DI
 
         static void Player()
         {
-            var go = new GameObject("Player");
-            go.tag = "Player";
-            go.layer = LayerMask.NameToLayer("Player"); // нужен проверке земли
-            go.transform.position = new Vector3(1.5f, 1.2f, -15f);
-
-            var col = go.AddComponent<CapsuleCollider>();
-            col.radius = 0.34f;
-            col.height = 1.7f;
-            col.center = new Vector3(0f, 0.85f, 0f);
-
-            var rb = go.AddComponent<Rigidbody>();
-            rb.mass = 80f;
-            rb.freezeRotation = true;
-            rb.interpolation = RigidbodyInterpolation.Interpolate;
-            rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-
-            var visual = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            visual.name = "Body";
-            Object.Destroy(visual.GetComponent<Collider>());
-            visual.transform.SetParent(go.transform, false);
-            visual.transform.localPosition = new Vector3(0f, 0.85f, 0f);
-            visual.transform.localScale = new Vector3(0.62f, 1.2f, 0.5f);
-            visual.GetComponent<Renderer>().material.color = new Color(0.9f, 0.5f, 0.15f);
-
-            var controller = go.AddComponent<PlayerController>();
-            go.AddComponent<GrabSystem>();
-
-            var camGo = new GameObject("MainCamera");
-            camGo.tag = "MainCamera";
-            camGo.transform.position = go.transform.position + new Vector3(0f, 3f, -6f);
-            camGo.AddComponent<Camera>();
-            camGo.AddComponent<AudioListener>();
-            var cam = camGo.AddComponent<ThirdPersonCamera>();
-            cam.target = go.transform;
-            controller.CameraTransform = camGo.transform;
+            PlayerFactory.BuildPlayer(new Vector3(1.5f, 1.2f, -15f), true);
         }
 
         static void Checkpoints()

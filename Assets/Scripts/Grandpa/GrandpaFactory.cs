@@ -65,6 +65,7 @@ namespace DI
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
 
             go.GetComponent<Renderer>().material.color = color;
+            go.AddComponent<NetDynamicMarker>();
             return rb;
         }
 

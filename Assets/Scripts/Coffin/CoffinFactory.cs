@@ -79,6 +79,8 @@ namespace DI
             lidGo.AddComponent<LidBreakReporter>();
 
             body.Lid = lidRb;
+            lidGo.AddComponent<NetDynamicMarker>();
+            root.AddComponent<NetDynamicMarker>();
             return body;
         }
 
