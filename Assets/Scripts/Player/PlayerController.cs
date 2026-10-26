@@ -11,7 +11,7 @@ namespace DI
         public float airControl = 0.35f;
         public float carrySpeedMul = 0.5f; // во сколько раз медленнее с тяжёлым грузом
 
-        public Transform CameraTransform { get; set; }
+        [HideInInspector] public Transform CameraTransform; // назначается при сборке сцены
 
         Rigidbody rb;
         GrabSystem grab;

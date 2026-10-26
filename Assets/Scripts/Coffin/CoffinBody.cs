@@ -10,8 +10,10 @@ namespace DI
         public float tiltCreakDeg = 50f;
         public float slopeSlideDeg = 20f;
 
-        public Rigidbody Lid { get; set; }
-        public GrandpaState Grandpa { get; set; }
+        [SerializeField, HideInInspector] Rigidbody lid;    // сериализуется: назначается фабрикой
+        [SerializeField, HideInInspector] GrandpaState grandpaRef;
+        public Rigidbody Lid { get => lid; set => lid = value; }
+        public GrandpaState Grandpa { get => grandpaRef; set => grandpaRef = value; }
         public float TiltDeg { get; private set; }
         public bool Sliding { get; private set; }
 

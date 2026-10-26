@@ -19,6 +19,19 @@ namespace DI
         {
             I = this;
             if (built) return;
+            BuildOnce();
+        }
+
+        /// Строит уровень в редакторе (из SceneSetup): у обычных скриптов Awake
+        /// в edit mode не вызывается, поэтому редакторский путь — через этот метод.
+        public void EditorBuild()
+        {
+            if (built) return;
+            BuildOnce();
+        }
+
+        void BuildOnce()
+        {
             built = true;
 
             if (DIGameManager.I == null) gameObject.AddComponent<DIGameManager>();
@@ -85,7 +98,7 @@ namespace DI
 
             var go = new GameObject("Terrain");
             go.AddComponent<MeshFilter>().sharedMesh = mesh;
-            go.GetComponent<MeshRenderer>().material.color = Grass;
+            go.AddComponent<MeshRenderer>().material.color = Grass;
             var col = go.AddComponent<MeshCollider>();
             col.sharedMesh = mesh;
         }
@@ -258,7 +271,7 @@ namespace DI
             visual.transform.localScale = new Vector3(0.62f, 1.2f, 0.5f);
             visual.GetComponent<Renderer>().material.color = new Color(0.9f, 0.5f, 0.15f);
 
-            go.AddComponent<PlayerController>();
+            var controller = go.AddComponent<PlayerController>();
             go.AddComponent<GrabSystem>();
 
             var camGo = new GameObject("MainCamera");
@@ -268,6 +281,7 @@ namespace DI
             camGo.AddComponent<AudioListener>();
             var cam = camGo.AddComponent<ThirdPersonCamera>();
             cam.target = go.transform;
+            controller.CameraTransform = camGo.transform;
         }
 
         static void Checkpoints()

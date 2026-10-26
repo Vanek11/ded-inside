@@ -18,7 +18,8 @@ public static class SceneSetup
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
         var levelGo = new GameObject("Level");
-        levelGo.AddComponent<LevelVillage1>(); // Awake строит уровень прямо в редакторе
+        var level = levelGo.AddComponent<LevelVillage1>();
+        level.EditorBuild(); // в edit mode Awake не вызывается — строим явно
 
         System.IO.Directory.CreateDirectory("Assets/Scenes");
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/Village1.unity");
@@ -34,7 +35,8 @@ public static class SceneSetup
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
         var levelGo = new GameObject("Level");
-        levelGo.AddComponent<LevelVillage1>(); // Awake строит уровень прямо в редакторе
+        var level = levelGo.AddComponent<LevelVillage1>();
+        level.EditorBuild(); // в edit mode Awake не вызывается — строим явно
 
         System.IO.Directory.CreateDirectory("Assets/Scenes");
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/Village1.unity");
