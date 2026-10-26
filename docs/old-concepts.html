@@ -1,0 +1,435 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Play:wght@400;700&display=swap">
+<style>
+#game-concepts { display:flex; flex-direction:column; gap:26px; }
+#game-concepts .shot { position:relative; width:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden; box-shadow:0 18px 44px rgba(0,0,0,.35); }
+#game-concepts .shot svg.scene { position:absolute; inset:0; width:100%; height:100%; }
+#game-concepts .cap { margin:10px 4px 0; color:var(--muted-foreground); font-size:13px; line-height:1.5; }
+#game-concepts .cap b { color:var(--foreground); font-size:14px; margin-right:6px; }
+
+/* ---------- 1. РЕНЕГАТ ---------- */
+.rg { background: radial-gradient(130% 100% at 50% -10%, #241048 0%, #120830 48%, #070213 100%); color:#e8f6ff; font-family:'Russo One','Play',system-ui,sans-serif; }
+.rg-floor { position:absolute; left:-22%; right:-22%; bottom:-8%; height:66%;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(0,240,255,.5) 46px 48px),
+    repeating-linear-gradient(0deg, transparent 0 46px, rgba(255,45,200,.42) 46px 48px);
+  transform: perspective(380px) rotateX(62deg); transform-origin:50% 0; opacity:.5; }
+.rg-horizon { position:absolute; left:0; right:0; top:42%; height:2px;
+  background:linear-gradient(90deg, transparent, rgba(0,240,255,.9), rgba(255,45,200,.9), transparent);
+  filter:blur(1px); box-shadow:0 0 26px rgba(62,243,255,.75); }
+.rg-haze { position:absolute; left:0; right:0; top:40%; height:14%; background:linear-gradient(180deg, #0d0620 0%, rgba(13,6,32,0) 100%); }
+.rg-bot { position:absolute; width:9%; height:16%; background:linear-gradient(180deg,#ff2dc4,#8a1466);
+  clip-path:polygon(18% 0, 82% 0, 100% 100%, 0 100%); filter:drop-shadow(0 0 14px rgba(255,45,196,.75)); }
+.rg-bot::after { content:""; position:absolute; left:26%; right:26%; top:26%; height:13%; background:#0ff3f0; box-shadow:0 0 10px #0ff3f0; border-radius:2px; }
+.rg-bot1 { left:17%; top:47%; }
+.rg-bot2 { left:60%; top:44%; transform:scale(.7); }
+.rg-drone { position:absolute; left:45%; top:24%; width:5.5%; height:9%; background:#9d5cff;
+  clip-path:polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); filter:drop-shadow(0 0 12px rgba(157,92,255,.9)); }
+.rg-bolt { position:absolute; height:3px; border-radius:2px; background:linear-gradient(90deg, transparent, #3ef3ff); filter:drop-shadow(0 0 6px #3ef3ff); }
+.rg-bolt1 { left:38%; top:50%; width:9%; transform:rotate(-14deg); }
+.rg-bolt2 { left:57%; top:57%; width:6%; transform:rotate(9deg); opacity:.8; }
+.rg-spark { position:absolute; left:64%; top:43%; width:34px; height:34px; border-radius:50%;
+  background:radial-gradient(circle, #fff 0%, rgba(62,243,255,.7) 30%, transparent 70%); }
+.rg-cross { position:absolute; top:46%; left:50%; width:26px; height:26px; transform:translate(-50%,-50%);
+  border:2px solid rgba(0,255,240,.9); border-radius:50%; box-shadow:0 0 12px rgba(0,255,240,.8), inset 0 0 6px rgba(0,255,240,.5); }
+.rg-cross::before { content:""; position:absolute; left:50%; top:50%; width:4px; height:4px; margin:-2px 0 0 -2px; background:#fff; border-radius:50%; box-shadow:0 0 6px #fff; }
+.rg-gun { position:absolute; right:-3%; bottom:-7%; width:32%; height:40%;
+  background:linear-gradient(120deg, #171730, #232347 70%, #2c2c58);
+  clip-path:polygon(0 100%, 10% 48%, 26% 34%, 40% 40%, 46% 62%, 78% 74%, 100% 88%, 100% 100%); }
+.rg-gun::after { content:""; position:absolute; left:10%; top:46%; width:38%; height:5%;
+  background:#3ef3ff; opacity:.5; box-shadow:0 0 12px #3ef3ff; transform:rotate(20deg); }
+.rg-vig { position:absolute; inset:0; box-shadow:inset 0 0 140px rgba(0,0,0,.55); pointer-events:none; }
+.rg-tl { position:absolute; left:18px; top:14px; }
+.rg-hp i { font-style:normal; font-size:10px; letter-spacing:.16em; color:#8fd8ff; display:block; margin-bottom:3px; }
+.rg-hp .bar { width:170px; height:8px; border-radius:4px; background:rgba(255,255,255,.12); overflow:hidden; }
+.rg-hp .bar b { display:block; height:100%; width:72%; background:linear-gradient(90deg,#19e68c,#7dffce); box-shadow:0 0 10px rgba(25,230,140,.8); }
+.rg-dash { display:flex; gap:5px; margin-top:8px; }
+.rg-dash span { width:26px; height:6px; border-radius:3px; background:#3ef3ff; box-shadow:0 0 8px rgba(62,243,255,.8); }
+.rg-dash .cd { background:rgba(255,255,255,.16); box-shadow:none; }
+.rg-tr { position:absolute; right:18px; top:14px; text-align:right; }
+.rg-wave { font-size:22px; color:#fff; text-shadow:0 0 14px rgba(62,243,255,.9); letter-spacing:.06em; }
+.rg-en { font-size:10px; color:#b79bff; margin-top:4px; letter-spacing:.18em; }
+.rg-ammo { position:absolute; right:22px; bottom:18px; font-size:26px; text-shadow:0 0 12px rgba(255,45,196,.7); }
+.rg-ammo i { font-style:normal; font-size:14px; color:#9aa8c7; }
+.rg-pick { position:absolute; left:50%; bottom:118px; transform:translateX(-50%); font-size:10px; letter-spacing:.34em; color:#8fd8ff; text-shadow:0 0 10px rgba(62,243,255,.6); white-space:nowrap; }
+.rg-cards { position:absolute; left:50%; bottom:14px; transform:translateX(-50%); display:flex; gap:10px; flex-wrap:wrap; justify-content:center; width:88%; }
+.rg-card { position:relative; width:150px; padding:9px 10px 8px; border-radius:10px; background:rgba(10,6,30,.74);
+  border:1px solid rgba(62,243,255,.35); box-shadow:0 6px 18px rgba(0,0,0,.45); }
+.rg-card b { display:block; font-size:10px; letter-spacing:.06em; color:#3ef3ff; margin-bottom:4px; }
+.rg-card span { display:block; font-size:9.5px; line-height:1.35; color:#cfd8f2; font-family:'Play',system-ui,sans-serif; }
+.rg-card em { position:absolute; right:8px; top:8px; font-style:normal; font-size:9px; color:#0a0620; background:#3ef3ff; border-radius:4px; padding:1px 5px; }
+.rg-card.hot { border-color:#ff2dc4; transform:translateY(-6px); box-shadow:0 10px 24px rgba(255,45,196,.25); }
+.rg-card.hot b { color:#ff7de0; }
+.rg-card.hot em { background:#ff2dc4; color:#fff; }
+
+/* ---------- 2. ГРАВИТОН ---------- */
+.gr { background:linear-gradient(180deg, #fdf6ec 0%, #f3e7d3 100%); color:#22303f; font-family:'Russo One','Play',system-ui,sans-serif; }
+.gr-tl { position:absolute; left:18px; top:14px; }
+.gr-title { font-size:20px; color:#22303f; }
+.gr-sub { font-size:11px; letter-spacing:.1em; color:#8a7a5e; margin-top:4px; font-family:'Play',system-ui,sans-serif; }
+.gr-chip { display:inline-block; margin-top:8px; font-size:10px; letter-spacing:.12em; padding:3px 9px; border-radius:20px;
+  background:rgba(46,196,182,.15); border:1px solid rgba(46,196,182,.45); color:#1a8a80; }
+.gr-dial { position:absolute; right:16px; bottom:14px; display:grid; grid-template-columns:repeat(2,36px); gap:6px; }
+.gr-dial span { width:36px; height:36px; border-radius:9px; background:rgba(255,255,255,.6); border:1px solid rgba(34,48,63,.18);
+  display:flex; align-items:center; justify-content:center; color:#22303f; }
+.gr-dial .on { background:#ff6b6b; border-color:#e14b4b; color:#fff; box-shadow:0 4px 14px rgba(255,107,107,.45); }
+.gr-dial svg { width:16px; height:16px; }
+.gr-hint { position:absolute; left:18px; bottom:16px; font-size:10px; letter-spacing:.14em; color:#a3947a; font-family:'Play',system-ui,sans-serif; }
+
+/* ---------- 3. БУКСИР-9 ---------- */
+.bt { background: radial-gradient(90% 70% at 68% 18%, #223059 0%, #131b38 45%, #070b18 100%); color:#dfe8ff; font-family:'Russo One','Play',system-ui,sans-serif; }
+.bt::before { content:""; position:absolute; inset:0; background:radial-gradient(40% 30% at 16% 82%, rgba(90,60,160,.2), transparent 70%); pointer-events:none; }
+.bt-tl { position:absolute; left:18px; top:14px; font-size:10px; letter-spacing:.14em; color:#8fa3c8; }
+.bt-tl .row { margin-bottom:3px; }
+.bt-tl .bar { display:inline-block; vertical-align:middle; width:130px; height:7px; margin-left:8px; border-radius:4px; background:rgba(255,255,255,.1); overflow:hidden; }
+.bt-tl .bar b { display:block; height:100%; border-radius:4px; }
+.bt-fuel b { width:62%; background:linear-gradient(90deg,#e8912f,#ffcf7a); box-shadow:0 0 8px rgba(255,179,71,.7); }
+.bt-hull b { width:88%; background:linear-gradient(90deg,#2ea88a,#7de8c8); box-shadow:0 0 8px rgba(94,234,196,.6); }
+.bt-tr { position:absolute; right:18px; top:14px; text-align:right; max-width:250px; }
+.bt-credits { font-size:22px; color:#ffcf7a; text-shadow:0 0 14px rgba(255,179,71,.5); }
+.bt-contract { font-size:9.5px; letter-spacing:.08em; color:#8fa3c8; margin-top:5px; line-height:1.5; font-family:'Play',system-ui,sans-serif; }
+.bt-bl { position:absolute; left:18px; bottom:16px; }
+.bt-speed { font-size:22px; color:#dfe8ff; }
+.bt-speed i { font-style:normal; font-size:11px; color:#8fa3c8; }
+.bt-mass { font-size:10px; letter-spacing:.16em; color:#8fa3c8; margin-top:4px; }
+.bt-radar { position:absolute; right:18px; bottom:16px; width:86px; height:86px; border-radius:50%;
+  border:1.5px solid rgba(94,234,196,.5); background:radial-gradient(circle, rgba(94,234,196,.12), rgba(94,234,196,.03) 70%); }
+.bt-radar::before { content:""; position:absolute; inset:0; border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(94,234,196,.4), transparent 80deg); }
+.bt-radar::after { content:""; position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(94,234,196,.2);
+  box-shadow:43px 0 0 -0.5px rgba(94,234,196,.0); }
+.bt-radar s { position:absolute; width:5px; height:5px; border-radius:50%; text-decoration:none; }
+.bt-radar .r1 { left:32%; top:36%; background:#5eeac4; box-shadow:0 0 6px #5eeac4; }
+.bt-radar .r2 { left:58%; top:62%; background:#ffb347; box-shadow:0 0 6px #ffb347; }
+.bt-radar .r3 { left:20%; top:66%; background:#ff5f5f; box-shadow:0 0 7px #ff5f5f; }
+.bt-warn { position:absolute; right:118px; bottom:46px; font-size:10px; letter-spacing:.12em; color:#ff6b6b;
+  background:rgba(255,95,95,.1); border:1px solid rgba(255,95,95,.4); border-radius:6px; padding:4px 8px; }
+
+/* ---------- 4. ОСКОЛКИ ---------- */
+.os { background:linear-gradient(180deg, #7fc3ec 0%, #b7e0f7 46%, #fdeccb 100%); font-family:'Russo One','Play',system-ui,sans-serif; }
+.os-tl { position:absolute; left:16px; top:12px; display:flex; gap:3px; }
+.os-tl s { width:13px; height:13px; border-radius:3px; background:#e8452c; box-shadow:inset 0 -4px 0 rgba(0,0,0,.22); text-decoration:none; }
+.os-tl s.off { background:rgba(20,30,45,.35); }
+.os-tr { position:absolute; right:14px; top:12px; text-align:right; background:rgba(20,30,45,.55); color:#fff;
+  border-radius:8px; padding:6px 10px; font-size:11px; letter-spacing:.08em; }
+.os-tr i { display:block; font-style:normal; font-size:9px; color:#cfe3ff; margin-top:3px; letter-spacing:.12em; font-family:'Play',system-ui,sans-serif; }
+.os-goal { position:absolute; left:50%; top:12px; transform:translateX(-50%); font-size:10px; letter-spacing:.12em; color:#fff;
+  background:rgba(20,30,45,.5); border-radius:20px; padding:5px 12px; white-space:nowrap; }
+.os-hotbar { position:absolute; left:50%; bottom:12px; transform:translateX(-50%); display:flex; gap:4px;
+  background:rgba(20,30,45,.55); border:1px solid rgba(255,255,255,.35); border-radius:8px; padding:4px; }
+.os-slot { position:relative; width:34px; height:34px; border-radius:5px; background:rgba(255,255,255,.12);
+  display:flex; align-items:center; justify-content:center; }
+.os-slot.sel { border:2px solid #fff; background:rgba(255,255,255,.2); }
+.os-slot .it { width:20px; height:20px; border-radius:3px; box-shadow:inset 0 -6px 0 rgba(0,0,0,.25); }
+.os-slot .it.dirt { background:#a4713f; }
+.os-slot .it.plank { background:#c99a5e; }
+.os-slot .it.stone { background:#9aa3ad; }
+.os-slot .it.torch { width:8px; height:16px; background:linear-gradient(#ffd27a,#e8963f); box-shadow:0 0 10px rgba(255,190,80,.9); border-radius:2px; }
+.os-slot em { position:absolute; right:2px; bottom:0; font-style:normal; font-size:9px; color:#fff; text-shadow:0 1px 2px #000; }
+.os-prompt { position:absolute; left:16%; top:36%; font-size:10px; letter-spacing:.1em; color:#fff;
+  background:rgba(20,30,45,.6); border-radius:6px; padding:4px 8px; }
+.os-night { position:absolute; right:12%; bottom:9%; font-size:10px; letter-spacing:.12em; color:#d9c9ff;
+  background:rgba(30,20,50,.7); border-radius:6px; padding:4px 8px; }
+</style>
+
+<div id="game-concepts">
+
+  <!-- ============ 1. РЕНЕГАТ ============ -->
+  <div>
+    <div class="shot rg" role="img" aria-label="Мокап игры РЕНЕГАТ: неоновая арена от первого лица, враги, HUD и три карты усиления">
+      <div class="rg-floor"></div>
+      <div class="rg-horizon"></div>
+      <div class="rg-haze"></div>
+      <div class="rg-bot rg-bot1"></div>
+      <div class="rg-bot rg-bot2"></div>
+      <div class="rg-drone"></div>
+      <div class="rg-bolt rg-bolt1"></div>
+      <div class="rg-bolt rg-bolt2"></div>
+      <div class="rg-spark"></div>
+      <div class="rg-cross"></div>
+      <div class="rg-gun"></div>
+      <div class="rg-tl">
+        <div class="rg-hp"><i>HP 72/100</i><div class="bar"><b></b></div></div>
+        <div class="rg-dash"><span></span><span></span><span class="cd"></span></div>
+      </div>
+      <div class="rg-tr">
+        <div class="rg-wave">ВОЛНА 7</div>
+        <div class="rg-en">ВРАГОВ ОСТАЛОСЬ: 12</div>
+      </div>
+      <div class="rg-ammo">24 <i>/ 96</i></div>
+      <div class="rg-pick">ВЫБЕРИ УСИЛЕНИЕ</div>
+      <div class="rg-cards">
+        <div class="rg-card"><b>КИНЕТИЧЕСКИЙ РЫВОК</b><span>Рывок наносит урон врагам на пути</span><em>Q</em></div>
+        <div class="rg-card hot"><b>ШЛЕМ АРБИТРА</b><span>+25% урона, пока HP ниже 40%</span><em>E</em></div>
+        <div class="rg-card"><b>РЕЗОНАНС</b><span>Убийства взрываются неоном</span><em>R</em></div>
+      </div>
+      <div class="rg-vig"></div>
+    </div>
+    <p class="cap"><b>«РЕНЕГАТ»</b>Неоновый шутер-рогалик: волны врагов, рывки и безумные билды из апгрейдов между волнами.</p>
+  </div>
+
+  <!-- ============ 2. ГРАВИТОН ============ -->
+  <div>
+    <div class="shot gr" role="img" aria-label="Мокап игры Гравитон: изометрическая комната-диорама, гравитация направлена влево, шар летит к цели">
+      <svg class="scene" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <polygon points="120,232 320,132 520,232 320,332" fill="#efe3cc" stroke="#e0cfa9" stroke-width="1.5"/>
+        <polygon points="120,232 320,132 320,64 120,164" fill="#f8eeda" stroke="#e6d5b4" stroke-width="1"/>
+        <polygon points="320,132 520,232 520,164 320,64" fill="#f1e3c9" stroke="#e6d5b4" stroke-width="1"/>
+        <line x1="120" y1="198" x2="320" y2="98" stroke="#eadbbd" stroke-width="1"/>
+        <line x1="320" y1="98" x2="520" y2="198" stroke="#eadbbd" stroke-width="1"/>
+        <g stroke="#e4d6b6" stroke-width="1.5">
+          <line x1="186.7" y1="265.3" x2="386.7" y2="165.3"/>
+          <line x1="253.3" y1="298.7" x2="453.3" y2="198.7"/>
+          <line x1="186.7" y1="198.7" x2="386.7" y2="298.7"/>
+          <line x1="253.3" y1="165.3" x2="453.3" y2="265.3"/>
+        </g>
+        <circle cx="180" cy="158" r="28" fill="rgba(46,196,182,.14)"/>
+        <circle cx="180" cy="158" r="18" fill="none" stroke="#2ec4b6" stroke-width="5"/>
+        <circle cx="180" cy="158" r="8" fill="#2ec4b6" opacity=".85"/>
+        <path d="M300,205 Q255,196 222,186" fill="none" stroke="rgba(34,48,63,.35)" stroke-width="2" stroke-dasharray="4 6"/>
+        <polygon points="206,183 220,175 218,190" fill="rgba(34,48,63,.4)"/>
+        <g stroke="#ff6b6b" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".55">
+          <polyline points="322,180 300,196 322,212"/>
+          <polyline points="290,180 268,196 290,212"/>
+          <polyline points="258,180 236,196 258,212"/>
+        </g>
+        <g transform="rotate(-12 306 148)">
+          <polygon points="306,138 326,148 306,158 286,148" fill="#e8b06a"/>
+          <polygon points="286,148 306,158 306,178 286,168" fill="#c98d4a"/>
+          <polygon points="326,148 306,158 306,178 326,168" fill="#b07a3c"/>
+        </g>
+        <g stroke="rgba(80,50,20,.25)" stroke-width=".75">
+          <polygon points="268,200 288,210 268,220 248,210" fill="#e8b06a"/>
+          <polygon points="248,210 268,220 268,240 248,230" fill="#c98d4a"/>
+          <polygon points="288,210 268,220 268,240 288,230" fill="#b07a3c"/>
+          <polygon points="222,228 242,238 222,248 202,238" fill="#e8b06a"/>
+          <polygon points="202,238 222,248 222,268 202,258" fill="#c98d4a"/>
+          <polygon points="242,238 222,248 222,268 242,258" fill="#b07a3c"/>
+        </g>
+        <circle cx="212" cy="182" r="14" fill="url(#ballG)"/>
+        <ellipse cx="207" cy="176" rx="5" ry="3" fill="rgba(255,255,255,.55)"/>
+        <defs>
+          <radialGradient id="ballG" cx="35%" cy="30%" r="80%">
+            <stop offset="0%" stop-color="#ff9d9d"/>
+            <stop offset="100%" stop-color="#d94343"/>
+          </radialGradient>
+        </defs>
+      </svg>
+      <div class="gr-tl">
+        <div class="gr-title">ГРАВИТОН</div>
+        <div class="gr-sub">УРОВЕНЬ 12 — «ПЕРЕКРЁСТНЫЙ ПОТОК»</div>
+        <span class="gr-chip">ХОДОВ: 2 / 5</span>
+      </div>
+      <div class="gr-hint">G — СМЕНИТЬ ГРАВИТАЦИЮ</div>
+      <div class="gr-dial">
+        <span><i data-lucide="arrow-up"></i></span>
+        <span><i data-lucide="arrow-down"></i></span>
+        <span class="on"><i data-lucide="arrow-left"></i></span>
+        <span><i data-lucide="arrow-right"></i></span>
+      </div>
+    </div>
+    <p class="cap"><b>«ГРАВИТОН»</b>Головоломка: не двигаешь предметы, а меняешь направление гравитации в диораме и проводишь шар к цели.</p>
+  </div>
+
+  <!-- ============ 3. БУКСИР-9 ============ -->
+  <div>
+    <div class="shot bt" role="img" aria-label="Мокап игры БУКСИР-9: космический буксир тянет контейнер на тросе среди астероидов, на радаре пираты">
+      <svg class="scene" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs>
+          <radialGradient id="planetG" cx="35%" cy="32%" r="85%">
+            <stop offset="0%" stop-color="#8a6bb0"/>
+            <stop offset="100%" stop-color="#3a2a58"/>
+          </radialGradient>
+          <linearGradient id="flameG" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="rgba(255,179,71,0)"/>
+            <stop offset="100%" stop-color="#ffb347"/>
+          </linearGradient>
+          <filter id="soft" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/></filter>
+        </defs>
+        <g id="bt-stars"></g>
+        <ellipse cx="512" cy="74" rx="60" ry="13" fill="none" stroke="rgba(169,143,208,.55)" stroke-width="3" transform="rotate(-16 512 74)"/>
+        <circle cx="512" cy="74" r="40" fill="url(#planetG)"/>
+        <path d="M455,86 Q512,108 570,62" fill="none" stroke="rgba(169,143,208,.5)" stroke-width="3"/>
+        <g transform="translate(585,152)">
+          <rect x="-14" y="-4" width="28" height="8" rx="2" fill="#5a6480"/>
+          <rect x="-4" y="-13" width="8" height="9" rx="1" fill="#4a5570"/>
+          <rect x="-19" y="-2" width="5" height="4" fill="#5a6480"/>
+          <rect x="14" y="-2" width="5" height="4" fill="#5a6480"/>
+          <circle cx="-8" cy="0" r="1.2" fill="#9fe8ff"/><circle cx="0" cy="0" r="1.2" fill="#9fe8ff"/><circle cx="8" cy="0" r="1.2" fill="#9fe8ff"/>
+          <circle cx="0" cy="-15" r="2" fill="#ffb347"/>
+        </g>
+        <polygon points="84,76 104,66 122,78 116,96 92,98" fill="#575f6e"/>
+        <circle cx="100" cy="80" r="4" fill="#49505d"/><circle cx="110" cy="88" r="3" fill="#49505d"/>
+        <polygon points="388,300 402,292 414,300 410,312 394,314" fill="#4c5462"/>
+        <polygon points="52,252 64,246 74,254 68,264 56,262" fill="#454c59"/>
+        <g transform="translate(452,272) rotate(8)">
+          <rect x="-16" y="-12" width="32" height="24" rx="3" fill="#55617a"/>
+          <line x1="-16" y1="-4" x2="16" y2="-4" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+          <text x="0" y="8" text-anchor="middle" font-family="Play, sans-serif" font-weight="700" font-size="9" fill="#cfd8f2">К-46</text>
+        </g>
+        <path d="M216,190 Q282,238 352,208" fill="none" stroke="#cbd5ea" stroke-width="2.5"/>
+        <circle cx="216" cy="190" r="3.5" fill="#cbd5ea"/><circle cx="352" cy="208" r="3.5" fill="#cbd5ea"/>
+        <g transform="rotate(-3 348 227)">
+          <rect x="316" y="206" width="64" height="42" rx="4" fill="#b85c34"/>
+          <line x1="326" y1="210" x2="326" y2="244" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+          <line x1="336" y1="210" x2="336" y2="244" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+          <line x1="346" y1="210" x2="346" y2="244" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+          <line x1="356" y1="210" x2="356" y2="244" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+          <line x1="366" y1="210" x2="366" y2="244" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+          <text x="348" y="233" text-anchor="middle" font-family="Russo One, sans-serif" font-size="13" fill="#ffe9d6">К-47</text>
+        </g>
+        <g transform="translate(120,170)">
+          <polygon points="-24,8 -80,15 -24,22" fill="url(#flameG)" opacity=".9"/>
+          <ellipse cx="-30" cy="15" rx="16" ry="11" fill="rgba(255,179,71,.35)" filter="url(#soft)"/>
+          <rect x="-22" y="6" width="20" height="20" rx="3" fill="#39415c"/>
+          <rect x="0" y="0" width="92" height="32" rx="6" fill="#46506b" stroke="#2b3350" stroke-width="1.5"/>
+          <line x1="30" y1="2" x2="30" y2="30" stroke="rgba(10,14,26,.35)" stroke-width="2"/>
+          <line x1="58" y1="2" x2="58" y2="30" stroke="rgba(10,14,26,.35)" stroke-width="2"/>
+          <rect x="58" y="-13" width="30" height="15" rx="4" fill="#57627f"/>
+          <rect x="63" y="-10" width="16" height="9" rx="2" fill="#9fe8ff"/>
+          <rect x="61" y="-12" width="20" height="13" rx="3" fill="rgba(159,232,255,.4)" filter="url(#soft)"/>
+          <line x1="70" y1="-13" x2="70" y2="-24" stroke="#7c88a6" stroke-width="2"/>
+          <circle cx="70" cy="-26" r="2" fill="#ffb347"/>
+          <circle cx="90" cy="4" r="2.2" fill="#ff5f5f"/>
+          <circle cx="90" cy="28" r="2.2" fill="#5ee0a0"/>
+        </g>
+      </svg>
+      <div class="bt-tl">
+        <div class="row">ТОПЛИВО<span class="bar bt-fuel"><b></b></span></div>
+        <div class="row">ЦЕЛОСТНОСТЬ<span class="bar bt-hull"><b></b></span></div>
+      </div>
+      <div class="bt-tr">
+        <div class="bt-credits">₡ 1 240</div>
+        <div class="bt-contract">КОНТРАКТ №214 — ДОСТАВИТЬ МОДУЛЬ<br>НА СТАНЦИЮ «ВЕРФЬ-3»</div>
+      </div>
+      <div class="bt-bl">
+        <div class="bt-speed">12.4 <i>м/с</i></div>
+        <div class="bt-mass">МАССА 48.2 Т</div>
+      </div>
+      <div class="bt-warn">ВНИМАНИЕ: ПИРАТЫ · 2.4 КМ</div>
+      <div class="bt-radar"><s class="r1"></s><s class="r2"></s><s class="r3"></s></div>
+    </div>
+    <p class="cap"><b>«БУКСИР-9»</b>Космический дальнобойщик: буксировка грузов на физическом тросе, контракты, добыча руды и пираты.</p>
+  </div>
+
+  <!-- ============ 4. ОСКОЛКИ ============ -->
+  <div>
+    <div class="shot os" role="img" aria-label="Мокап игры Осколки: воксельные летающие острова, деревянный мост между ними, персонаж и хотбар">
+      <svg class="scene" id="os-svg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+      <div class="os-tl"><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s></s><s class="off"></s><s class="off"></s></div>
+      <div class="os-tr">ДЕНЬ 3 · 14:20<i>ДО НОЧИ 1Ч 40М</i></div>
+      <div class="os-goal">ЦЕЛЬ: СОЕДИНИТЬ ОСТРОВА МОСТОМ</div>
+      <div class="os-prompt">[E] ВЕРСТАК</div>
+      <div class="os-night">ОНИ ПРИХОДЯТ НОЧЬЮ</div>
+      <div class="os-hotbar">
+        <div class="os-slot sel"><i class="it dirt"></i><em>12</em></div>
+        <div class="os-slot"><i class="it plank"></i><em>4</em></div>
+        <div class="os-slot"><i class="it stone"></i><em>7</em></div>
+        <div class="os-slot"><i class="it torch"></i></div>
+        <div class="os-slot"></div><div class="os-slot"></div><div class="os-slot"></div>
+        <div class="os-slot"></div><div class="os-slot"></div>
+      </div>
+    </div>
+    <p class="cap"><b>«ОСКОЛКИ»</b>Воксельное выживание: планета разорвана на летающие острова — днём строишь и добываешь, ночью отбиваешься от тварей.</p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var svg = document.getElementById('bt-stars');
+  if(!svg) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  for(var i=0;i<110;i++){
+    var c = document.createElementNS(NS,'circle');
+    c.setAttribute('cx',(Math.random()*640).toFixed(1));
+    c.setAttribute('cy',(Math.random()*360).toFixed(1));
+    c.setAttribute('r',(Math.random()*1.1+0.3).toFixed(2));
+    c.setAttribute('fill','#dfe8ff');
+    c.setAttribute('opacity',(Math.random()*0.65+0.2).toFixed(2));
+    svg.appendChild(c);
+  }
+})();
+(function(){
+  var svg = document.getElementById('os-svg');
+  if(!svg) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, parent){
+    var e = document.createElementNS(NS, tag);
+    for(var k in attrs) e.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(e);
+    return e;
+  }
+  var bg = el('g', {});
+  el('circle', {cx:62, cy:56, r:38, fill:'rgba(255,215,140,.30)'}, bg);
+  el('circle', {cx:62, cy:56, r:22, fill:'#ffe1a1'}, bg);
+  [[150,54,36,12],[178,62,26,9],[388,40,42,13],[418,48,28,10],[510,96,30,10]].forEach(function(c){
+    el('ellipse', {cx:c[0], cy:c[1], rx:c[2], ry:c[3], fill:'#ffffff', opacity:.85}, bg);
+  });
+  el('ellipse', {cx:556, cy:322, rx:42, ry:12, fill:'rgba(120,80,200,.16)'}, bg);
+  el('circle', {cx:452, cy:158, r:20, fill:'rgba(255,190,80,.28)'}, bg);
+  el('path', {d:'M150,162 Q250,178 352,162', fill:'none', stroke:'#6b4a2a', 'stroke-width':2, opacity:.8}, bg);
+
+  var cubes = [];
+  function add(cx, cy, h, a, cols, s){
+    cubes.push({cx:cx, cy:cy, h:h, a:a, cols:cols, s:s});
+  }
+  var grass = ['#7ec850','#8a5c36','#7a5230'];
+  var dirt  = ['#a4713f','#8a5c30','#96653a'];
+  var stone = ['#a8b0ba','#7d858f','#9099a3'];
+  var plank = ['#c99a5e','#9a7440','#8f6b3a'];
+  var leaf  = ['#58b34c','#3e8f3a','#4aa044'];
+  var log   = ['#9a6b3f','#7a5230','#8a5c36'];
+  var darkG = ['#4b3a6b','#241838','#322349'];
+  var darkD = ['#3a2c55','#1d1430','#281c3d'];
+
+  function grid(o, i, j, z){ return [o.ox + (i-j)*o.a, o.oy + (i+j)*o.a/2 - z*o.a]; }
+  var A = {ox:70, oy:112, a:16}, B = {ox:436, oy:146, a:16}, N = {ox:556, oy:286, a:10};
+
+  var i, j, k, n, off, p;
+  for(i=0;i<5;i++) for(j=0;j<5;j++){ p = grid(A,i,j,0); add(p[0],p[1],16,16,grass,(i+j)*10); }
+  for(k=1;k<=3;k++){ n=5-k; off=k/2;
+    for(i=0;i<n;i++) for(j=0;j<n;j++){ p = grid(A,off+i,off+j,-k); add(p[0],p[1],16,16,dirt,(off+i+off+j)*10-k); } }
+  p = grid(A,2,2,-4); add(p[0],p[1],16,16,stone,39);
+
+  for(i=0;i<4;i++) for(j=0;j<4;j++){
+    p = grid(B,i,j,0); add(p[0],p[1],16,16,(i===1&&j===2)?dirt:grass,(i+j)*10+0.2); }
+  for(k=1;k<=3;k++){ n=4-k; off=k/2;
+    for(i=0;i<n;i++) for(j=0;j<n;j++){ p = grid(B,off+i,off+j,-k); add(p[0],p[1],16,16,dirt,(off+i+off+j)*10-k); } }
+
+  add(162,158,9,15,plank,999); add(207,158,9,15,plank,999); add(252,158,9,15,plank,999);
+  add(297,158,9,15,plank,999); add(342,158,9,15,plank,999);
+  add(255,246,12,13,stone,998); add(274,264,10,9,stone,998);
+
+  p = grid(A,1,1,1); add(p[0],p[1],14,11,log,21);
+  p = grid(A,1,1,2); add(p[0],p[1],14,11,log,22);
+  [[0,1],[1,0],[1,1],[1,2],[2,1]].forEach(function(c){ p = grid(A,c[0],c[1],3); add(p[0],p[1],14,13,leaf,(c[0]+c[1])*10+3); });
+  p = grid(A,1,1,4); add(p[0],p[1],12,12,leaf,24);
+
+  add(86,136,12,12,['#2e3d55','#232f44','#28364b'],51);
+  add(86,120,12,12,['#3ec9c9','#2aa3a3','#31b1b1'],52);
+  add(86,104,10,11,['#f2c091','#d9a06b','#e0ab77'],53);
+
+  p = grid(B,2,1,1); add(p[0],p[1],8,6,['#ffd27a','#e8963f','#d9822f'],31);
+
+  for(i=0;i<3;i++) for(j=0;j<3;j++){ p = grid(N,i,j,0); add(p[0],p[1],10,10,darkG,(i+j)*10+0.5); }
+  for(i=0;i<2;i++) for(j=0;j<2;j++){ p = grid(N,i+0.5,j+0.5,-1); add(p[0],p[1],10,10,darkD,(i+j+1)*10); }
+
+  cubes.sort(function(a,b){ return a.s - b.s; });
+  cubes.forEach(function(c){
+    var g = el('g', {});
+    var t = [[c.cx,c.cy-c.a/2],[c.cx+c.a,c.cy],[c.cx,c.cy+c.a/2],[c.cx-c.a,c.cy]];
+    var l = [[c.cx-c.a,c.cy],[c.cx,c.cy+c.a/2],[c.cx,c.cy+c.a/2+c.h],[c.cx-c.a,c.cy+c.h]];
+    var r = [[c.cx+c.a,c.cy],[c.cx,c.cy+c.a/2],[c.cx,c.cy+c.a/2+c.h],[c.cx+c.a,c.cy+c.h]];
+    function pts(a){ return a.map(function(q){ return q[0].toFixed(1)+','+q[1].toFixed(1); }).join(' '); }
+    el('polygon', {points:pts(l), fill:c.cols[1]}, g);
+    el('polygon', {points:pts(r), fill:c.cols[2]}, g);
+    el('polygon', {points:pts(t), fill:c.cols[0]}, g);
+  });
+
+  el('circle', {cx:90.5, cy:111, r:1.3, fill:'#26313d'});
+  el('circle', {cx:94.5, cy:110, r:1.3, fill:'#26313d'});
+  el('circle', {cx:571.5, cy:304, r:5, fill:'rgba(255,179,71,.35)'});
+  el('circle', {cx:569.5, cy:305, r:1.4, fill:'#ffb347'});
+  el('circle', {cx:573.5, cy:304, r:1.4, fill:'#ffb347'});
+})();
+</script>
