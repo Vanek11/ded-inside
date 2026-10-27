@@ -97,6 +97,15 @@ namespace DI
             hat.transform.position = new Vector3(sx, 2.18f, sz);
             hat.transform.localScale = new Vector3(0.7f, 0.18f, 0.7f);
             hat.GetComponent<Renderer>().material.color = new Color(0.45f, 0.3f, 0.15f);
+
+            // покосившийся забор вокруг огорода
+            for (int i = 0; i < 9; i++)
+            {
+                float z = 14f + i * 2f;
+                Art.Model(i % 4 == 3 ? "town/fence-broken" : "town/fence",
+                    new Vector3(-4.6f, LevelHelpers.Ground(-4.6f, z), z), 90f, 1f, 0.5f);
+            }
+            Art.Model("town/fence-gate", new Vector3(-4.6f, LevelHelpers.Ground(-4.6f, 34f), 34f), 90f, 1f, 0f);
         }
 
         /// Брод: дорога уходит под мелкую воду, по краям камни.

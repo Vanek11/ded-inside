@@ -137,29 +137,40 @@ namespace DI
                 Art.Emissive(win.GetComponent<Renderer>(), new Color(1f, 0.75f, 0.35f), 2f);
                 Slab($"WindowFrame{wx}", new Vector3(wx, 3.4f, -23.36f), new Vector3(1.1f, 1.3f, 0.05f), 0f, Wood);
             }
+
+            // телега у дома и забор по краю участка
+            Art.Model("town/cart", new Vector3(-6.3f, Ground(-6.3f, -20.5f), -20.5f), 25f, 1f, 0.5f);
+            for (int i = 0; i < 5; i++)
+                Art.Model(i == 2 ? "town/fence-gate" : "town/fence",
+                    new Vector3(6.5f, Ground(6.5f, -24f + i * 2f), -24f + i * 2f), 90f, 1f, 0.5f);
         }
 
         public static void Tree(float x, float z)
         {
             float y = Ground(x, z);
-            var trunk = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            trunk.name = "Trunk";
-            trunk.transform.position = new Vector3(x, y + 1.5f, z);
-            trunk.transform.localScale = new Vector3(0.5f, 3f, 0.5f);
-            Art.Paint(trunk.GetComponent<Renderer>(), new Color(0.35f, 0.25f, 0.15f), 0f, 0f, "wood", 3f);
+            // три варианта деревьев Kenney, стабильный «случайный» выбор по координатам
+            float h = Mathf.Repeat(x * 0.37f + z * 0.53f, 1f);
+            string kind = h < 0.4f ? "nature/tree_detailed"
+                : h < 0.7f ? "nature/tree_detailed_dark" : "nature/tree_cone";
+            float scale = 0.9f + h * 0.35f;
+            Art.Model(kind, new Vector3(x, y, z), h * 360f, scale, 0.35f);
+        }
 
-            // крона из трёх сфер с лёгкой вариацией оттенка
-            float jitter = Mathf.Repeat(x * 0.37f + z * 0.53f, 1f);
-            var crownColor = Color.Lerp(new Color(0.26f, 0.43f, 0.2f), new Color(0.32f, 0.5f, 0.24f), jitter);
-            foreach (var off in new[] { new Vector3(0f, 4.2f, 0f), new Vector3(-1.1f, 3.4f, 0.6f), new Vector3(1f, 3.6f, -0.7f) })
+        /// Рассыпать траву, пеньки и грибы по лугам (не на дороге).
+        public static void ScatterNature()
+        {
+            var rnd = new System.Random(20261027);
+            for (int i = 0; i < 34; i++)
             {
-                var crown = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                crown.name = "Crown";
-                crown.transform.position = new Vector3(x + off.x, y + off.y, z + off.z);
-                crown.transform.localScale = off == Vector3.zero
-                    ? new Vector3(3.4f, 2.6f, 3.4f)
-                    : new Vector3(2.3f, 1.9f, 2.3f);
-                Art.Paint(crown.GetComponent<Renderer>(), crownColor, 0f, 0f, "grass", 6f);
+                float x = (float)(rnd.NextDouble() * 110 - 55);
+                float z = (float)(rnd.NextDouble() * 130 - 25);
+                if (Mathf.Abs(x) < 3.5f) continue; // не на дороге
+                float y = Ground(x, z);
+                float pick = (float)rnd.NextDouble();
+                string rel = pick < 0.55f ? "nature/grass" : pick < 0.8f ? "nature/grass_leafs"
+                    : pick < 0.92f ? "nature/mushroom_redGroup" : "nature/stump_roundDetailed";
+                float rot = (float)rnd.NextDouble() * 360f;
+                Art.Model(rel, new Vector3(x, y, z), rot, 1f, 0f);
             }
         }
 
@@ -220,19 +231,26 @@ namespace DI
         /// Кладбище: могила-цель, надгробия, ограда. baseY — высота плиты-плато.
         public static void Cemetery(float baseY, float goalZ)
         {
+            // надгробия Kenney, 4 варианта по кругу
+            var stones = new[] { "graveyard/gravestone-round", "graveyard/gravestone-cross",
+                                 "graveyard/gravestone-wide", "graveyard/gravestone-roof" };
+            int idx = 0;
             for (int r = 0; r < 3; r++)
                 foreach (float x in new[] { -6f, -4f, -2f, 2f, 4f, 6f })
                     if ((r + Mathf.Abs(x)) % 3f != 0f)
                     {
-                        Slab($"Grave_{r}_{x}", new Vector3(x, baseY + 0.58f, goalZ - 4f + r * 3.2f),
-                            new Vector3(0.7f, 1.1f, 0.18f), 0f, Stone);
+                        float gz = goalZ - 4f + r * 3.2f;
+                        Art.Model(stones[idx % stones.Length], new Vector3(x, baseY, gz),
+                            (idx % 2) * 180f, 1f, 0.9f);
+                        idx++;
+
                         // цветы у подножия
                         for (int f = 0; f < 2; f++)
                         {
                             var flower = GameObject.CreatePrimitive(PrimitiveType.Cube);
                             flower.name = $"Flower_{r}_{x}_{f}";
                             flower.transform.position = new Vector3(
-                                x + (f == 0 ? 0.22f : -0.25f), baseY + 0.06f, goalZ - 4f + r * 3.2f + 0.18f);
+                                x + (f == 0 ? 0.22f : -0.25f), baseY + 0.06f, gz + 0.18f);
                             flower.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
                             Art.Paint(flower.GetComponent<Renderer>(),
                                 f == 0 ? new Color(0.9f, 0.5f, 0.65f) : new Color(0.95f, 0.85f, 0.4f), 0.3f);
@@ -243,8 +261,7 @@ namespace DI
                 new Color(0.3f, 0.22f, 0.14f));
 
             // крест на могиле-цели
-            Slab("CrossV", new Vector3(0f, baseY + 0.85f, goalZ + 1.3f), new Vector3(0.14f, 1.1f, 0.14f), 0f, Wood);
-            Slab("CrossH", new Vector3(0f, baseY + 1.15f, goalZ + 1.3f), new Vector3(0.55f, 0.14f, 0.14f), 0f, Wood);
+            Art.Model("graveyard/cross", new Vector3(0f, baseY, goalZ + 1.3f), 0f, 1.2f, 0.9f);
 
             var goalGo = new GameObject("GoalZone");
             var col = goalGo.AddComponent<BoxCollider>();
@@ -253,43 +270,45 @@ namespace DI
             goalGo.transform.position = new Vector3(0f, baseY + 0.8f, goalZ);
             goalGo.AddComponent<GoalZone>();
 
+            // железная ограда с воротами
             for (int z = (int)goalZ - 8; z <= (int)goalZ + 6; z += 2)
                 foreach (float x in new[] { -7f, 7f })
                     if (z != (int)goalZ - 2 && z != (int)goalZ)
-                        Slab($"Fence{x}_{z}", new Vector3(x, baseY + 0.65f, z),
-                            new Vector3(0.15f, 1.2f, 0.15f), 0f, Stone);
-            Slab("FenceLeft", new Vector3(-7f, baseY + 1.1f, goalZ - 1f), new Vector3(0.1f, 0.12f, 13f), 0f, Stone);
-            Slab("FenceRight", new Vector3(7f, baseY + 1.1f, goalZ - 1f), new Vector3(0.1f, 0.12f, 13f), 0f, Stone);
+                        Art.Model("graveyard/iron-fence", new Vector3(x, baseY, z), 90f, 1f, 0.6f);
+            Art.Model("graveyard/iron-fence-border-gate", new Vector3(-7f, baseY, goalZ - 1f), 90f, 1f, 0f);
+            Art.Model("graveyard/iron-fence-border-gate", new Vector3(7f, baseY, goalZ - 1f), 90f, 1f, 0f);
+
+            // фонари у входа: тёплые светящиеся
+            foreach (float x in new[] { -3.2f, 3.2f })
+            {
+                var lantern = Art.Model("graveyard/lantern-glass", new Vector3(x, baseY, goalZ - 9.5f), 0f, 1f, 0.3f);
+                if (lantern != null)
+                {
+                    var light = lantern.AddComponent<Light>();
+                    light.type = LightType.Point;
+                    light.color = new Color(1f, 0.75f, 0.4f);
+                    light.intensity = 1.6f;
+                    light.range = 9f;
+                }
+            }
 
             Caretaker(new Vector3(3.2f, baseY, goalZ - 11f));
         }
 
-        /// Ворчливый смотритель: стоит у ограды, комментирует доставку.
+        /// Ворчливый смотритель: модель смотрителя кладбища Kenney + логика ворчания.
         static void Caretaker(Vector3 basePos)
         {
-            var go = new GameObject("Caretaker");
-            go.transform.position = basePos + new Vector3(0f, 0.85f, 0f);
-
-            var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            body.name = "Body";
-            body.transform.SetParent(go.transform, false);
-            body.transform.localScale = new Vector3(0.9f, 0.85f, 0.9f);
-            body.GetComponent<Renderer>().material.color = new Color(0.25f, 0.32f, 0.24f);
-
-            var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            head.name = "Head";
-            head.transform.SetParent(go.transform, false);
-            head.transform.localPosition = new Vector3(0f, 1f, 0f);
-            head.transform.localScale = Vector3.one * 0.42f;
-            head.GetComponent<Renderer>().material.color = new Color(0.8f, 0.65f, 0.5f);
-
-            var hat = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            hat.name = "Hat";
-            hat.transform.SetParent(go.transform, false);
-            hat.transform.localPosition = new Vector3(0f, 1.28f, 0f);
-            hat.transform.localScale = new Vector3(0.85f, 0.15f, 0.85f);
-            hat.GetComponent<Renderer>().material.color = new Color(0.14f, 0.14f, 0.16f);
-
+            var go = Art.Model("graveyard/character-keeper", basePos, 180f, 1f, 0.9f);
+            if (go == null)
+            {
+                // запасной примитив, если модель не загрузилась
+                var fallback = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                fallback.transform.position = basePos + Vector3.up * 0.85f;
+                fallback.name = "Caretaker";
+                fallback.AddComponent<GrumpCaretaker>();
+                return;
+            }
+            go.name = "Caretaker";
             go.AddComponent<GrumpCaretaker>();
         }
 
@@ -360,6 +379,7 @@ namespace DI
             if (DIGameManager.I == null) levelGo.AddComponent<DIGameManager>();
             levelGo.AddComponent<HUD>();
             levelGo.AddComponent<PauseMenu>();
+            ScatterNature();
             Crow.Spawn(new Vector3(0f, 9f, 10f), 40f);
             var cam = UnityEngine.Object.FindFirstObjectByType<Camera>();
             if (cam != null) Art.SetupPostFx(cam);

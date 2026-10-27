@@ -16,10 +16,9 @@ namespace DI
 
         public static GameObject Spawn(Vector3 pos, Vector3 axis)
         {
-            // скамейка
-            LevelHelpers.Slab("Bench", pos + new Vector3(0f, 0.32f, 0f), new Vector3(1.6f, 0.1f, 0.5f), 0f, LevelHelpers.Wood);
-            foreach (float dx in new[] { -0.65f, 0.65f })
-                LevelHelpers.Slab($"BenchLeg{dx}", pos + new Vector3(dx, 0.14f, 0f), new Vector3(0.12f, 0.28f, 0.45f), 0f, LevelHelpers.Wood);
+            // скамейка (модель кладбищенской лавки)
+            var bench = Art.Model("graveyard/bench", pos + new Vector3(0f, LevelHelpers.Ground(pos.x, pos.z), 0f),
+                90f, 1f, 0.6f);
 
             // сам Толя
             var go = new GameObject("Tolya");

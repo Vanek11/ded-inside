@@ -41,10 +41,10 @@ namespace DI
             LevelHelpers.Slab("RoadSlopeUp2", new Vector3(0f, 0.84f, 68f), new Vector3(3.4f, 0.1f, 12.3f), -8f, LevelHelpers.Dirt);
             LevelHelpers.Slab("Plateau", new Vector3(0f, 1.70f, 81f), new Vector3(10f, 0.1f, 14f), 0f, LevelHelpers.Dirt);
 
-            // пруд с мостком
+            // пруд с деревянным мостком
             LevelHelpers.Water(new Vector3(0f, -0.3f, 42f), new Vector3(16f, 0.8f, 12f), 0.1f);
             for (int z = 34; z < 50; z += 2)
-                LevelHelpers.Slab($"Plank{z}", new Vector3(0f, 0.36f, z + 1f), new Vector3(3.2f, 0.08f, 1.8f), 0f, LevelHelpers.Wood);
+                Art.Model("nature/bridge_woodNarrow", new Vector3(0f, 0.3f, z + 1f), 0f, 1f, 0.25f);
 
             LevelHelpers.Cemetery(1.70f, 82f);
 

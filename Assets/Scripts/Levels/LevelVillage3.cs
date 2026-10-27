@@ -76,18 +76,11 @@ namespace DI
             }
         }
 
-        /// Узкий мост через овраг, в овраге ручей: упал — плавай, наверх по пандусу.
+        /// Узкий мост через овраг (модели моста), в овраге ручей: упал — плавай.
         void Bridge()
         {
-            for (float z = 26f; z < 38f; z += 1.2f)
-                LevelHelpers.Slab($"BridgePlank{z:0}", new Vector3(0f, 3.55f, z + 0.6f),
-                    new Vector3(2.2f, 0.08f, 1.15f), 0f, LevelHelpers.Wood);
-
-            // перила-уголки: только по краям входа и выхода
-            foreach (float x in new[] { -1.2f, 1.2f })
-                foreach (float z in new[] { 26.2f, 37.8f })
-                    LevelHelpers.Slab($"Rail{x}_{z}", new Vector3(x, 3.85f, z),
-                        new Vector3(0.12f, 0.55f, 0.12f), 0f, LevelHelpers.Wood);
+            for (float z = 26f; z < 38f; z += 2f)
+                Art.Model("nature/bridge_wood", new Vector3(0f, 3.5f, z + 1f), 0f, 1f, 0.25f);
 
             LevelHelpers.Water(new Vector3(0f, -0.35f, 32f), new Vector3(10f, 0.5f, 10f), -0.12f);
 

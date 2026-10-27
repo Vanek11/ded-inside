@@ -4,8 +4,61 @@ namespace DI
 {
     /// Материалы и постэффекты: покраска с процедурными текстурами,
     /// прозрачность, свечение, и настройка PostProcessing на камере.
-    public static class Art
+public static class Art
+{
+    static Material vcMaterial;
+
+    /// Материал с vertex color для палитровых моделей Kenney.
+    public static Material VertexColorMaterial()
     {
+        if (vcMaterial == null)
+        {
+            var sh = Shader.Find("Custom/VertexColorLit");
+            if (sh != null) vcMaterial = new Material(sh);
+        }
+        return vcMaterial;
+    }
+
+    /// Загрузить и поставить модель из Resources/Art/<rel>.
+    /// По всем мешам назначается vertex-color материал; добавляется простой
+    /// BoxCollider по нижней части габаритов (если colliderFraction > 0).
+    public static GameObject Model(string rel, Vector3 pos, float rotYDeg = 0f, float scale = 1f,
+        float colliderFraction = 0f)
+    {
+        var prefab = Resources.Load<GameObject>($"Art/{rel}");
+        if (prefab == null)
+        {
+            Debug.LogWarning($"[Art] модель не найдена: Art/{rel}");
+            return null;
+        }
+
+        var go = Object.Instantiate(prefab, pos, Quaternion.Euler(0f, rotYDeg, 0f));
+        go.transform.localScale = Vector3.one * scale;
+
+        var vc = VertexColorMaterial();
+        if (vc != null)
+            foreach (var r in go.GetComponentsInChildren<MeshRenderer>())
+                r.sharedMaterial = vc;
+
+        if (colliderFraction > 0f)
+        {
+            var bounds = new Bounds(go.transform.position, Vector3.zero);
+            bool has = false;
+            foreach (var r in go.GetComponentsInChildren<MeshRenderer>())
+            {
+                bounds.Encapsulate(r.bounds);
+                has = true;
+            }
+            if (has)
+            {
+                var col = go.AddComponent<BoxCollider>();
+                col.center = new Vector3(0f, bounds.size.y * colliderFraction * 0.5f, 0f);
+                col.size = new Vector3(bounds.size.x, bounds.size.y * colliderFraction, bounds.size.z);
+            }
+        }
+        return go;
+    }
+
         /// Покрасить рендерер: цвет + опциональная процедурная текстура + глянец/металл.
         public static void Paint(Renderer r, Color c, float gloss = 0.1f, float metallic = 0f,
             string tex = null, float texScale = 1.5f)
