@@ -24,7 +24,7 @@ namespace DI
             }
 
             used = true;
-            LevelVillage1.I?.OnCheckpoint(this);
+            DIGameManager.I?.Event($"Чекпоинт «{checkpointId}» пройден!");
         }
     }
 }

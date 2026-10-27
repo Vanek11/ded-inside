@@ -74,8 +74,10 @@ namespace DI
             hinge.anchor = new Vector3(-Width / 2f, 0f, 0f);
             hinge.axis = Vector3.forward;
             hinge.useSpring = true;
-            hinge.spring = new JointSpring { spring = 200f, damper = 15f, targetPosition = 0f };
-            hinge.breakForce = 3500f;
+            float lidSpring = 200f;
+            if (SessionState.HasGear("rems")) lidSpring = 440f; // ремни: крышка держится вдвое крепче
+            hinge.spring = new JointSpring { spring = lidSpring, damper = 15f, targetPosition = 0f };
+            hinge.breakForce = SessionState.HasGear("tape") ? 9000f : 3500f; // скотч-пистолет
             lidGo.AddComponent<LidBreakReporter>();
 
             body.Lid = lidRb;

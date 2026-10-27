@@ -3,12 +3,32 @@ using UnityEngine.SceneManagement;
 
 namespace DI
 {
-    /// Главное меню (IMGUI-серый бокс; на арт-пасе заменяется на нормальный UI).
+    /// Главное меню: выбор заказа (со звёздами и разблокировкой), лавка снаряжения,
+    /// сетевые кнопки. IMGUI-серый бокс; на арт-пасе заменяется на нормальный UI.
     public class MenuBootstrap : MonoBehaviour
     {
         [SerializeField, HideInInspector] bool built;
+        int tab; // 0 = смена, 1 = лавка
         string ip = "127.0.0.1";
         Texture2D bg;
+
+        struct GearItem
+        {
+            public string id, name, desc;
+            public int price;
+            public GearItem(string id, string name, string desc, int price)
+            {
+                this.id = id; this.name = name; this.desc = desc; this.price = price;
+            }
+        }
+
+        static readonly GearItem[] Gear =
+        {
+            new GearItem("boots", "Скороходы", "Ботинки с гвоздями: ходьба +15%", 200),
+            new GearItem("padding", "Мягкая обивка", "Урон деду от ударов −50%", 300),
+            new GearItem("rems", "Похоронные ремни", "Крышка держится вдвое крепче", 400),
+            new GearItem("tape", "Скотч-пистолет", "Крышку почти невозможно сорвать", 500),
+        };
 
         void Awake()
         {
@@ -50,42 +70,105 @@ namespace DI
 
             var big = new GUIStyle(GUI.skin.label)
             {
-                fontSize = 84,
+                fontSize = 64,
                 alignment = TextAnchor.MiddleCenter,
                 fontStyle = FontStyle.Bold,
                 normal = { textColor = Color.white }
             };
             var sub = new GUIStyle(GUI.skin.label)
             {
-                fontSize = 20,
+                fontSize = 18,
                 alignment = TextAnchor.MiddleCenter,
                 normal = { textColor = new Color(1f, 1f, 1f, 0.75f) }
             };
             var cash = new GUIStyle(sub) { fontSize = 16, normal = { textColor = new Color(0.65f, 0.9f, 0.55f) } };
 
-            float top = Screen.height * 0.10f;
-            GUI.Label(new Rect(0, top, Screen.width, 110f), "ДЕД ВНУТРИ", big);
-            GUI.Label(new Rect(0, top + 108f, Screen.width, 30f), "Кооп-комедия о самой бестолковой похоронной службе", sub);
-            GUI.Label(new Rect(0, top + 140f, Screen.width, 26f), $"В кассе бюро: {SessionState.Money} ₽", cash);
+            float top = Screen.height * 0.06f;
+            GUI.Label(new Rect(0, top, Screen.width, 84f), "ДЕД ВНУТРИ", big);
+            GUI.Label(new Rect(0, top + 86f, Screen.width, 26f), $"В кассе бюро: {SessionState.Money} ₽", cash);
 
-            float w = 420f, h = 52f, x = (Screen.width - w) / 2f, y = Screen.height * 0.42f;
-            if (GUI.Button(new Rect(x, y, w, h), "НАЧАТЬ СМЕНУ (СОЛО)")) Go(SessionMode.Solo);
-            y += h + 10f;
-            if (GUI.Button(new Rect(x, y, w, h), "ХОСТИТЬ СМЕНУ (ДРУГ ПОДКЛЮЧИТСЯ)")) Go(SessionMode.Host);
-            y += h + 10f;
-            GUI.Label(new Rect(x, y + 6f, 50f, 30f), "IP:");
-            ip = GUI.TextField(new Rect(x + 50f, y, w - 50f, h - 14f), ip, 64);
-            y += h + 10f;
-            if (GUI.Button(new Rect(x, y, w, h), "ПОДКЛЮЧИТЬСЯ К ДРУГУ")) Go(SessionMode.Client);
-            y += h + 24f;
-            if (GUI.Button(new Rect(x, y, w, 40f), "ВЫХОД")) Application.Quit();
+            // вкладки
+            float w = 760f, x = (Screen.width - w) / 2f;
+            float y = top + 130f;
+            float tw = w / 2f;
+            if (GUI.Button(new Rect(x, y, tw, 40f), tab == 0 ? "[ СМЕНА ]" : "СМЕНА")) tab = 0;
+            if (GUI.Button(new Rect(x + tw, y, tw, 40f), tab == 1 ? "[ ЛАВКА ]" : "ЛАВКА")) tab = 1;
+            y += 52f;
+
+            if (tab == 0) DrawOrders(x, y, w);
+            else DrawShop(x, y, w);
+
+            // сетевые кнопки и выход — внизу
+            y = Screen.height - 150f;
+            GUI.Label(new Rect(x, y, 50f, 30f), "IP:");
+            ip = GUI.TextField(new Rect(x + 50f, y, 220f, 30f), ip, 64);
+            if (GUI.Button(new Rect(x + 285f, y, 220f, 34f), "ХОСТИТЬ СМЕНУ")) Go(SessionMode.Host, null);
+            if (GUI.Button(new Rect(x + 515f, y, 220f, 34f), "ПОДКЛЮЧИТЬСЯ К ДРУГУ")) Go(SessionMode.Client, null);
+            if (GUI.Button(new Rect(x, y + 44f, 220f, 34f), "ВЫХОД")) Application.Quit();
         }
 
-        void Go(SessionMode mode)
+        void DrawOrders(float x, float y, float w)
+        {
+            DrawOrder(x, y, w, "Village1", "Пригорок", "пруд с мостком и гусями");
+            DrawOrder(x, y + 64f, w, "Village2", "Огород", "грядки, брод через ручей, пугало");
+            DrawOrder(x, y + 128f, w, "Village3", "Сеновал", "крутой подъём, мост через овраг, корова");
+        }
+
+        void DrawOrder(float x, float y, float w, string scene, string title, string desc)
+        {
+            bool unlocked = SessionState.IsUnlocked(scene);
+            var stars = new string('★', SessionState.Stars(scene)) + new string('☆', 3 - SessionState.Stars(scene));
+
+            GUI.DrawTexture(new Rect(x, y, w, 56f), Solid(new Color(0.12f, 0.12f, 0.15f, 0.95f)));
+            GUI.Label(new Rect(x + 14f, y + 6f, 220f, 24f), $"Деревня · {title}",
+                new GUIStyle(GUI.skin.label) { fontSize = 18, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } });
+            GUI.Label(new Rect(x + 14f, y + 30f, 340f, 20f), desc,
+                new GUIStyle(GUI.skin.label) { fontSize = 13, normal = { textColor = new Color(1, 1, 1, 0.7f) } });
+            GUI.Label(new Rect(x + 380f, y + 14f, 120f, 30f), stars,
+                new GUIStyle(GUI.skin.label) { fontSize = 22, normal = { textColor = new Color(1f, 0.85f, 0.3f) } });
+
+            if (unlocked)
+            {
+                if (GUI.Button(new Rect(x + w - 150f, y + 11f, 130f, 34f), "ИГРАТЬ"))
+                    SceneManager.LoadScene(scene);
+            }
+            else
+            {
+                GUI.Label(new Rect(x + w - 220f, y + 17f, 210f, 24f), "закрыто — нужна звезда на предыдущем",
+                    new GUIStyle(GUI.skin.label) { fontSize = 12, normal = { textColor = new Color(1, 1, 1, 0.5f) } });
+            }
+        }
+
+        void DrawShop(float x, float y, float w)
+        {
+            for (int i = 0; i < Gear.Length; i++)
+            {
+                var g = Gear[i];
+                float ry = y + i * 64f;
+                GUI.DrawTexture(new Rect(x, ry, w, 56f), Solid(new Color(0.12f, 0.12f, 0.15f, 0.95f)));
+                GUI.Label(new Rect(x + 14f, ry + 6f, 300f, 24f), g.name,
+                    new GUIStyle(GUI.skin.label) { fontSize = 18, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } });
+                GUI.Label(new Rect(x + 14f, ry + 30f, 460f, 20f), g.desc,
+                    new GUIStyle(GUI.skin.label) { fontSize = 13, normal = { textColor = new Color(1, 1, 1, 0.7f) } });
+
+                bool owned = SessionState.HasGear(g.id);
+                if (owned)
+                {
+                    GUI.Label(new Rect(x + w - 150f, ry + 15f, 140f, 30f), "куплено",
+                        new GUIStyle(GUI.skin.label) { fontSize = 16, normal = { textColor = new Color(0.65f, 0.9f, 0.55f) } });
+                }
+                else if (GUI.Button(new Rect(x + w - 150f, ry + 11f, 130f, 34f), $"{g.price} ₽"))
+                {
+                    SessionState.BuyGear(g.id, g.price);
+                }
+            }
+        }
+
+        void Go(SessionMode mode, string scene)
         {
             SessionState.Mode = mode;
             SessionState.Ip = ip;
-            SceneManager.LoadScene("Village1");
+            SceneManager.LoadScene(scene ?? "Village1");
         }
     }
 }

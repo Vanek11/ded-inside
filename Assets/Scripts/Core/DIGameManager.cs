@@ -177,6 +177,7 @@ namespace DI
             r.Stars = r.Total >= 900 ? 3 : r.Total >= 650 ? 2 : 1;
             Result = r;
 
+            SessionState.SetStars(SceneManager.GetActiveScene().name, r.Stars);
             SessionState.AddMoney(r.Total);
             Event($"Касса пополнена на {r.Total} ₽");
         }

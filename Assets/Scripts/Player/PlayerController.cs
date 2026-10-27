@@ -69,7 +69,8 @@ namespace DI
             Vector3 wish = fwd * input.y + right * input.x;
             if (wish.sqrMagnitude > 1f) wish.Normalize();
 
-            float speed = moveSpeed * (grab != null && grab.IsCarryingHeavy ? carrySpeedMul : 1f);
+            float speed = moveSpeed * (SessionState.HasGear("boots") ? 1.15f : 1f)
+                          * (grab != null && grab.IsCarryingHeavy ? carrySpeedMul : 1f);
             Vector3 target = wish * speed;
             var v = rb.linearVelocity;
             Vector3 accel = new Vector3(target.x - v.x, 0f, target.z - v.z) * (grounded ? 12f : 12f * airControl);

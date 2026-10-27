@@ -55,6 +55,7 @@ namespace DI
             }
 
             float dmg = (impact - 3f) * (part.IsHead ? 4f : 2f);
+            if (SessionState.HasGear("padding")) dmg *= 0.5f; // мягкая обивка гроба
             Condition = Mathf.Max(0f, Condition - dmg);
             DIGameManager.I?.ReportDamage(dmg, part.IsHead);
         }
