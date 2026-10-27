@@ -55,6 +55,7 @@ namespace DI
             LevelHelpers.SpawnPlayer(new Vector3(1.5f, 1.2f, -15f));
             LevelHelpers.BuildCane(new Vector3(2.4f, 0.35f, -17.5f));
             LevelHelpers.WillPost(new Vector3(6f, 0.05f, 44f));
+            Tolya.Spawn(new Vector3(4.6f, 0.1f, 36f), Vector3.forward);
 
             LevelHelpers.Checkpoint(new Vector3(0f, 1.2f, 36f), new Vector3(4f, 3f, 3f), "Огород");
             LevelHelpers.Checkpoint(new Vector3(0f, 1.2f, 56f), new Vector3(4f, 3f, 3f), "Брод");

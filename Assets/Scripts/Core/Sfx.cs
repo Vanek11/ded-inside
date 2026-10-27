@@ -96,5 +96,58 @@ namespace DI
                     return null;
             }
         }
+
+        /// Меню-полечка: 2 такта ля-минор, квадрат-мелодия, треугольный бас, аккорды.
+        /// Зацикленный клип, генерируется в рантайме.
+        public static AudioClip Polka()
+        {
+            if (cache.TryGetValue("polka", out var cached) && cached != null) return cached;
+
+            float bpm = 132f, beat = 60f / bpm;
+            float dur = beat * 8f; // 2 такта 4/4
+            int n = (int)(dur * Rate);
+            var data = new float[n];
+
+            void Note(float startBeat, float lenBeats, float freq, float vol, int wave)
+            {
+                int s = (int)(startBeat * beat * Rate);
+                int e = (int)((startBeat + lenBeats) * beat * Rate);
+                for (int i = s; i < Mathf.Min(e, n); i++)
+                {
+                    float t = (i - s) / (float)Rate;
+                    float env = Mathf.Min(1f, t * 250f) * Mathf.Exp(-3f * t / lenBeats);
+                    float w = wave == 0
+                        ? Mathf.Sign(Mathf.Sin(2f * Mathf.PI * freq * t))
+                        : Mathf.PingPong(freq * t, 1f) * 2f - 1f;
+                    data[i] += w * env * vol;
+                }
+            }
+
+            float E5 = 659.26f, D5 = 587.33f, C5 = 523.25f, B4 = 493.88f, A4 = 440f;
+            float A2 = 110f, E3 = 164.81f;
+
+            Note(0f, .45f, E5, .16f, 0); Note(.5f, .45f, E5, .16f, 0);
+            Note(1f, .45f, D5, .16f, 0); Note(1.5f, .45f, C5, .16f, 0);
+            Note(2f, .45f, D5, .16f, 0); Note(2.5f, .45f, C5, .16f, 0);
+            Note(3f, .9f, B4, .16f, 0);
+            Note(4f, .45f, C5, .16f, 0); Note(4.5f, .45f, C5, .16f, 0);
+            Note(5f, .45f, B4, .16f, 0); Note(5.5f, .45f, A4, .16f, 0);
+            Note(6f, .45f, B4, .16f, 0); Note(6.5f, .45f, A4, .16f, 0);
+            Note(7f, .95f, A4, .15f, 0);
+
+            Note(0f, .4f, A2, .26f, 1); Note(2f, .4f, A2, .26f, 1);
+            Note(4f, .4f, A2, .26f, 1); Note(6f, .4f, A2, .26f, 1);
+            Note(1f, .35f, E3, .2f, 1); Note(3f, .35f, E3, .2f, 1);
+            Note(5f, .35f, E3, .2f, 1); Note(7f, .35f, E3, .2f, 1);
+
+            for (float b = .5f; b < 7.9f; b += 1f)
+                foreach (float f in new[] { 220f, 261.63f, 329.63f })
+                    Note(b, .16f, f, .045f, 0);
+
+            var clip = AudioClip.Create("polka", n, 1, Rate, false);
+            clip.SetData(data, 0);
+            cache["polka"] = clip;
+            return clip;
+        }
     }
 }

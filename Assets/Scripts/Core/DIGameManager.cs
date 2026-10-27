@@ -11,7 +11,7 @@ namespace DI
     public class OrderResult
     {
         public float Condition, Time;
-        public int BasePay, ConditionPay, SpeedBonus, StyleBonus, WillTip, CaneTip, Total, Stars;
+        public int BasePay, ConditionPay, SpeedBonus, StyleBonus, WillTip, CaneTip, TolyaTip, Total, Stars;
     }
 
     /// Центральный менеджер заказа: фазы, таймер, лента, очки, церемония, оплата.
@@ -28,6 +28,7 @@ namespace DI
         public int Catches { get; private set; }
         public bool WillDone { get; set; }
         public bool CaneDelivered { get; set; }
+        public bool TolyaAboard { get; set; }
         public OrderResult Result { get; private set; }
 
         public const float CeremonyDuration = 3f;
@@ -165,6 +166,12 @@ namespace DI
                 && Vector3.Distance(cane.transform.position, goal.transform.position) < 3.5f;
             if (CaneDelivered) Event("Трость деда доставлена! Чаевые +30%");
 
+            // Толя, донесённый внутри гроба — бонус «Попутчик»
+            var tolya = GameObject.Find("Tolya");
+            if (tolya != null && coffin != null && tolya.transform.IsChildOf(coffin.transform))
+                TolyaAboard = true;
+            if (TolyaAboard) Event("Попутчик доставлен! Толя доволен. +50 стиля");
+
             var r = new OrderResult();
             r.Condition = grandpa != null ? grandpa.Condition : 0f;
             r.Time = OrderTime;
@@ -173,9 +180,15 @@ namespace DI
             r.SpeedBonus = Mathf.Clamp(Mathf.RoundToInt((240f - OrderTime) * 1.5f), 0, 200);
             r.StyleBonus = Mathf.RoundToInt(StylePoints * 2f);
             r.WillTip = WillDone ? 150 : 0;
+            if (TolyaAboard)
+            {
+                StylePoints += 50f;
+                r.TolyaTip = 100;
+            }
+            r.StyleBonus = Mathf.RoundToInt(StylePoints * 2f);
             int subtotal = r.BasePay + r.ConditionPay + r.SpeedBonus + r.StyleBonus + r.WillTip;
             r.CaneTip = CaneDelivered ? Mathf.RoundToInt(subtotal * 0.3f) : 0;
-            r.Total = subtotal + r.CaneTip;
+            r.Total = subtotal + r.CaneTip + r.TolyaTip;
             r.Stars = r.Total >= 900 ? 3 : r.Total >= 650 ? 2 : 1;
             Result = r;
 

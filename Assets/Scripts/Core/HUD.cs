@@ -98,7 +98,7 @@ namespace DI
 
         void DrawObjective()
         {
-            var r = new Rect(Screen.width - 332f, 12f, 320f, 120f);
+            var r = new Rect(Screen.width - 332f, 12f, 320f, 142f);
             Panel(r);
             float x = r.x + 14f, y = r.y + 10f, w = r.width - 28f;
 
@@ -114,6 +114,9 @@ namespace DI
             y += 20f;
             GUI.Label(new Rect(x, y, w, 20f),
                 $"{(game.CaneDelivered ? "[x]" : "[ ]")} Трость деда — донести до могилы (+30%)", small);
+            y += 20f;
+            GUI.Label(new Rect(x, y, w, 20f),
+                "Бомж Толя — подвезти в гробе (+50 стиля)", small);
         }
 
         void DrawFeed()
@@ -176,6 +179,7 @@ namespace DI
             Row("Стиль и спасения", $"{r.StyleBonus} ₽");
             Row("Завещание (конверт Буканову)", r.WillTip > 0 ? $"+{r.WillTip} ₽" : "—");
             Row("Трость деда (+30%)", r.CaneTip > 0 ? $"+{r.CaneTip} ₽" : "—");
+            Row("Попутчик (Толя)", r.TolyaTip > 0 ? $"+{r.TolyaTip} ₽" : "—");
             y += 8f;
             GUI.Label(new Rect(x, y, 420f, 40f), "ИТОГО", title);
             GUI.Label(new Rect(x + 420f, y, 200f, 40f), $"{r.Total} ₽",

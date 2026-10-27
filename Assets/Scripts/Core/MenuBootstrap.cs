@@ -35,8 +35,19 @@ namespace DI
 
         void Awake()
         {
-            if (built) return;
-            BuildOnce();
+            if (!built) BuildOnce();
+
+            // меню-полечка: генерируется в рантайме, зациклена
+            var src = GetComponent<AudioSource>();
+            if (src == null)
+            {
+                src = gameObject.AddComponent<AudioSource>();
+                src.clip = Sfx.Polka();
+                src.loop = true;
+                src.volume = 0.28f;
+                src.spatialBlend = 0f;
+                src.Play();
+            }
         }
 
         /// В edit mode Awake не вызывается — SceneSetup строит через этот метод.
