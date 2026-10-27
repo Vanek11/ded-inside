@@ -35,14 +35,15 @@ namespace DI
             Box(root, "WallFoot", new Vector3(Width - 2 * Wall, Height, Wall),
                 new Vector3(0f, 0f, -(Length / 2f - Wall / 2f)), wood);
 
-            // ручки-мишени для захвата, торчат по бокам
+            // ручки-мишени для захвата, торчат по бокам (латунь)
             for (int i = 0; i < 2; i++)
                 for (int s = 0; s < 2; s++)
                 {
                     float z = (i == 0 ? -1 : 1) * (Length / 2f - 0.45f);
                     float x = (s == 0 ? -1 : 1) * (Width / 2f + 0.06f);
-                    Box(root, $"Handle_{i}{s}", new Vector3(0.14f, 0.10f, 0.26f),
+                    var handle = Box(root, $"Handle_{i}{s}", new Vector3(0.14f, 0.10f, 0.26f),
                         new Vector3(x, 0.02f, z), brass);
+                    Art.Paint(handle.GetComponent<Renderer>(), brass, 0.85f, 1f);
                 }
 
             var body = root.AddComponent<CoffinBody>();
@@ -67,9 +68,7 @@ namespace DI
             Object.DestroyImmediate(lidMesh.GetComponent<Collider>());
             lidMesh.transform.SetParent(lidGo.transform, false);
             lidMesh.transform.localScale = lidCol.size;
-            var lidMat = lidMesh.GetComponent<Renderer>().material;
-            lidMat.color = wood;
-            lidMat.SetFloat("_Glossiness", 0.55f); // лак
+            Art.Paint(lidMesh.GetComponent<Renderer>(), wood, 0.55f, 0f, "wood", 2f); // лак
 
             // траурные ленты крест-накрест
             foreach (bool along in new[] { true, false })
@@ -110,7 +109,7 @@ namespace DI
             go.transform.SetParent(parent.transform, false);
             go.transform.localPosition = localPos;
             go.transform.localScale = size;
-            go.GetComponent<Renderer>().material.color = color;
+            Art.Paint(go.GetComponent<Renderer>(), color, 0.35f, 0f, "wood", 2f);
             return go;
         }
     }

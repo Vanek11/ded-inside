@@ -55,9 +55,9 @@ namespace DI
             go.transform.position = center;
             go.transform.localScale = size;
             go.transform.rotation = Quaternion.Euler(rotX, 0f, 0f);
-            var m = go.GetComponent<Renderer>().material;
-            m.color = color;
-            m.SetFloat("_Glossiness", 0.12f);
+            string tex = color == Dirt ? "dirt" : color == Wood ? "wood"
+                : color == Stone ? "stone" : color == Grass ? "grass" : null;
+            Art.Paint(go.GetComponent<Renderer>(), color, 0.08f, 0f, tex);
             return go;
         }
 
@@ -92,22 +92,48 @@ namespace DI
 
             var go = new GameObject("Terrain");
             go.AddComponent<MeshFilter>().sharedMesh = mesh;
-            var m = go.AddComponent<MeshRenderer>().material;
-            m.color = Grass;
-            m.SetFloat("_Glossiness", 0f);
+            Art.Paint(go.AddComponent<MeshRenderer>(), Grass, 0f, 0f, "grass", 44f);
             var col = go.AddComponent<MeshCollider>();
             col.sharedMesh = mesh;
         }
 
-        /// Дом с крыльцом на старте (крыльцо топом на y=0.5, z -23..-13).
+        /// Дом с крыльцом, двускатной крышей, трубой и тёплыми окнами.
         public static void StartHouse()
         {
             Slab("Porch", new Vector3(0f, 0.25f, -18f), new Vector3(7f, 0.5f, 10f), 0f, Wood);
             Slab("PorchStep", new Vector3(0f, 0.17f, -12.6f), new Vector3(3f, 0.34f, 0.9f), 0f, Wood);
-            Slab("House", new Vector3(0f, 3.2f, -24.5f), new Vector3(10f, 6.4f, 2f), 0f,
-                new Color(0.75f, 0.62f, 0.5f));
+
+            var wall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            wall.name = "House";
+            wall.transform.position = new Vector3(0f, 3.2f, -24.5f);
+            wall.transform.localScale = new Vector3(10f, 6.4f, 2f);
+            Art.Paint(wall.GetComponent<Renderer>(), new Color(0.78f, 0.66f, 0.52f), 0.05f);
+
             Slab("Door", new Vector3(0f, 1.5f, -23.4f), new Vector3(1.2f, 3f, 0.2f),
                 0f, new Color(0.25f, 0.16f, 0.1f));
+
+            // двускатная крыша
+            foreach (float side in new[] { -1f, 1f })
+            {
+                var slope = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                slope.name = "RoofSlope";
+                slope.transform.position = new Vector3(side * 2.25f, 7.05f, -24.5f);
+                slope.transform.localScale = new Vector3(3.6f, 0.16f, 11.2f);
+                slope.transform.rotation = Quaternion.Euler(0f, 0f, side * 34f);
+                Art.Paint(slope.GetComponent<Renderer>(), new Color(0.42f, 0.24f, 0.18f), 0.04f);
+            }
+            Slab("Chimney", new Vector3(2.6f, 7.3f, -26f), new Vector3(0.55f, 1.3f, 0.55f), 0f, Stone);
+
+            // тёплые окна (светятся с bloom'ом)
+            foreach (float wx in new[] { -3f, 3f })
+            {
+                var win = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                win.name = "Window";
+                win.transform.position = new Vector3(wx, 3.4f, -23.45f);
+                win.transform.localScale = new Vector3(0.95f, 1.15f, 0.08f);
+                Art.Emissive(win.GetComponent<Renderer>(), new Color(1f, 0.75f, 0.35f), 2f);
+                Slab($"WindowFrame{wx}", new Vector3(wx, 3.4f, -23.36f), new Vector3(1.1f, 1.3f, 0.05f), 0f, Wood);
+            }
         }
 
         public static void Tree(float x, float z)
@@ -117,13 +143,21 @@ namespace DI
             trunk.name = "Trunk";
             trunk.transform.position = new Vector3(x, y + 1.5f, z);
             trunk.transform.localScale = new Vector3(0.5f, 3f, 0.5f);
-            trunk.GetComponent<Renderer>().material.color = new Color(0.35f, 0.25f, 0.15f);
+            Art.Paint(trunk.GetComponent<Renderer>(), new Color(0.35f, 0.25f, 0.15f), 0f, 0f, "wood", 3f);
 
-            var crown = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            crown.name = "Crown";
-            crown.transform.position = new Vector3(x, y + 4.2f, z);
-            crown.transform.localScale = new Vector3(3.4f, 2.6f, 3.4f);
-            crown.GetComponent<Renderer>().material.color = new Color(0.28f, 0.45f, 0.22f);
+            // крона из трёх сфер с лёгкой вариацией оттенка
+            float jitter = Mathf.Repeat(x * 0.37f + z * 0.53f, 1f);
+            var crownColor = Color.Lerp(new Color(0.26f, 0.43f, 0.2f), new Color(0.32f, 0.5f, 0.24f), jitter);
+            foreach (var off in new[] { new Vector3(0f, 4.2f, 0f), new Vector3(-1.1f, 3.4f, 0.6f), new Vector3(1f, 3.6f, -0.7f) })
+            {
+                var crown = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                crown.name = "Crown";
+                crown.transform.position = new Vector3(x + off.x, y + off.y, z + off.z);
+                crown.transform.localScale = off == Vector3.zero
+                    ? new Vector3(3.4f, 2.6f, 3.4f)
+                    : new Vector3(2.3f, 1.9f, 2.3f);
+                Art.Paint(crown.GetComponent<Renderer>(), crownColor, 0f, 0f, "grass", 6f);
+            }
         }
 
         public static void Checkpoint(Vector3 pos, Vector3 size, string id)
@@ -186,11 +220,28 @@ namespace DI
             for (int r = 0; r < 3; r++)
                 foreach (float x in new[] { -6f, -4f, -2f, 2f, 4f, 6f })
                     if ((r + Mathf.Abs(x)) % 3f != 0f)
+                    {
                         Slab($"Grave_{r}_{x}", new Vector3(x, baseY + 0.58f, goalZ - 4f + r * 3.2f),
                             new Vector3(0.7f, 1.1f, 0.18f), 0f, Stone);
+                        // цветы у подножия
+                        for (int f = 0; f < 2; f++)
+                        {
+                            var flower = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                            flower.name = $"Flower_{r}_{x}_{f}";
+                            flower.transform.position = new Vector3(
+                                x + (f == 0 ? 0.22f : -0.25f), baseY + 0.06f, goalZ - 4f + r * 3.2f + 0.18f);
+                            flower.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
+                            Art.Paint(flower.GetComponent<Renderer>(),
+                                f == 0 ? new Color(0.9f, 0.5f, 0.65f) : new Color(0.95f, 0.85f, 0.4f), 0.3f);
+                        }
+                    }
 
             Slab("Soil", new Vector3(0f, baseY + 0.055f, goalZ), new Vector3(2.4f, 0.02f, 3f), 0f,
                 new Color(0.3f, 0.22f, 0.14f));
+
+            // крест на могиле-цели
+            Slab("CrossV", new Vector3(0f, baseY + 0.85f, goalZ + 1.3f), new Vector3(0.14f, 1.1f, 0.14f), 0f, Wood);
+            Slab("CrossH", new Vector3(0f, baseY + 1.15f, goalZ + 1.3f), new Vector3(0.55f, 0.14f, 0.14f), 0f, Wood);
 
             var goalGo = new GameObject("GoalZone");
             var col = goalGo.AddComponent<BoxCollider>();
@@ -288,9 +339,7 @@ namespace DI
             Object.DestroyImmediate(visual.GetComponent<Collider>());
             visual.transform.position = new Vector3(center.x, surfaceY, center.z);
             visual.transform.localScale = new Vector3(size.x, 0.04f, size.z);
-            var m = visual.GetComponent<Renderer>().material;
-            m.color = new Color(0.3f, 0.5f, 0.68f, 0.85f);
-            m.SetFloat("_Glossiness", 0.75f);
+            Art.Transparent(visual.GetComponent<Renderer>(), new Color(0.3f, 0.5f, 0.68f, 0.8f), 0.85f);
         }
 
         /// Гроб с дедом внутри, дед и гроб получают ссылки друг на друга.
@@ -309,6 +358,8 @@ namespace DI
             levelGo.AddComponent<HUD>();
             levelGo.AddComponent<PauseMenu>();
             Crow.Spawn(new Vector3(0f, 9f, 10f), 40f);
+            var cam = UnityEngine.Object.FindFirstObjectByType<Camera>();
+            if (cam != null) Art.SetupPostFx(cam);
             if (SessionState.Mode != SessionMode.Solo)
                 levelGo.AddComponent<DINetworkManager>().Bootstrap(SessionState.Mode, SessionState.Ip);
         }
