@@ -119,6 +119,7 @@ namespace DI
 
             var target = hit.rigidbody;
             if (target == null || target.isKinematic) return;
+            if (target == GetComponent<Rigidbody>()) return; // за себя хватать нельзя
 
             held = target;
             heldMass = Mathf.Max(1f, target.mass);
@@ -150,8 +151,19 @@ namespace DI
             Vector3 point = held.transform.TransformPoint(localPoint);
             Vector3 vel = held.GetPointVelocity(point);
             Vector3 force = (hand.position - point) * spring - vel * damp;
-            if (force.sqrMagnitude > maxForcePerHand * maxForcePerHand)
-                force = force.normalized * maxForcePerHand;
+
+            // лёгким предметам — лёгкая сила (иначе трость дёргается как бешеная);
+            // гроб по-прежнему упирается на полном пределе
+            float maxForce = Mathf.Min(maxForcePerHand, heldMass * 60f + 60f);
+
+            // эксплойт «полёт на схваченном»: стоя на объекте вертикальную силу гасим
+            if (Physics.SphereCast(transform.position + Vector3.up * 0.6f, 0.3f,
+                    Vector3.down, out var groundHit, 0.72f)
+                && groundHit.rigidbody == held)
+                force.y = 0f;
+
+            if (force.sqrMagnitude > maxForce * maxForce)
+                force = force.normalized * maxForce;
             held.AddForceAtPosition(force, point);
 
             // отдача веса на игрока: горизонтальная составляющая тянет назад,

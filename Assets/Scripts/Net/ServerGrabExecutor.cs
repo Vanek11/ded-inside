@@ -43,8 +43,9 @@ namespace DI
                 Vector3 point = g.target.transform.TransformPoint(g.localPoint);
                 Vector3 vel = rb.GetPointVelocity(point);
                 Vector3 force = (g.handPos - point) * Spring - vel * damp;
-                if (force.sqrMagnitude > MaxForce * MaxForce)
-                    force = force.normalized * MaxForce;
+                float maxForce = Mathf.Min(MaxForce, rb.mass * 60f + 60f);
+                if (force.sqrMagnitude > maxForce * maxForce)
+                    force = force.normalized * maxForce;
                 rb.AddForceAtPosition(force, point);
             }
         }

@@ -61,9 +61,12 @@ namespace DI
             return go;
         }
 
+        /// Последний пройденный чекпоинт — сюда возвращаем упавших за край мира.
+        public static Vector3 LastCheckpoint = new Vector3(1.5f, 1.2f, -15f);
+
         public static void TerrainMesh()
         {
-            const int half = 60, cell = 2;
+            const int half = 100, cell = 2; // мир 200×200 м — уровни уходят до z≈90
             int n = half * 2 / cell;
             var verts = new Vector3[(n + 1) * (n + 1)];
             var uv = new Vector2[verts.Length];
@@ -112,17 +115,17 @@ namespace DI
             Slab("Door", new Vector3(0f, 1.5f, -23.4f), new Vector3(1.2f, 3f, 0.2f),
                 0f, new Color(0.25f, 0.16f, 0.1f));
 
-            // двускатная крыша
+            // двускатная крыша: конёк по центру, свес над стеной
             foreach (float side in new[] { -1f, 1f })
             {
                 var slope = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 slope.name = "RoofSlope";
-                slope.transform.position = new Vector3(side * 2.25f, 7.05f, -24.5f);
-                slope.transform.localScale = new Vector3(3.6f, 0.16f, 11.2f);
-                slope.transform.rotation = Quaternion.Euler(0f, 0f, side * 34f);
+                slope.transform.position = new Vector3(side * 3.1f, 7.85f, -24.5f);
+                slope.transform.localScale = new Vector3(6.8f, 0.16f, 11.2f);
+                slope.transform.rotation = Quaternion.Euler(0f, 0f, -side * 25f);
                 Art.Paint(slope.GetComponent<Renderer>(), new Color(0.42f, 0.24f, 0.18f), 0.04f);
             }
-            Slab("Chimney", new Vector3(2.6f, 7.3f, -26f), new Vector3(0.55f, 1.3f, 0.55f), 0f, Stone);
+            Slab("Chimney", new Vector3(3.4f, 7.6f, -26f), new Vector3(0.55f, 1.3f, 0.55f), 0f, Stone);
 
             // тёплые окна (светятся с bloom'ом)
             foreach (float wx in new[] { -3f, 3f })

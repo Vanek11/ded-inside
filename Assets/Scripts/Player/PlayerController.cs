@@ -42,6 +42,14 @@ namespace DI
 
         void Update()
         {
+            // страховка: упал за край мира — на последний чекпоинт
+            if (transform.position.y < -15f)
+            {
+                rb.position = LevelHelpers.LastCheckpoint;
+                rb.linearVelocity = Vector3.zero;
+                DIGameManager.I?.Event("Ты выпал из мира и вернулся на чекпоинт.");
+            }
+
             if (Time.time - lastGrounded <= coyoteTime && Input.GetKeyDown(KeyCode.Space))
             {
                 var v = rb.linearVelocity;

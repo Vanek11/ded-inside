@@ -24,6 +24,7 @@ namespace DI
             }
 
             used = true;
+            LevelHelpers.LastCheckpoint = coffin.transform.position + Vector3.up * 2f;
             DIGameManager.I?.Event($"Чекпоинт «{checkpointId}» пройден!");
         }
     }
