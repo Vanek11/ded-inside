@@ -67,7 +67,23 @@ namespace DI
             Object.DestroyImmediate(lidMesh.GetComponent<Collider>());
             lidMesh.transform.SetParent(lidGo.transform, false);
             lidMesh.transform.localScale = lidCol.size;
-            lidMesh.GetComponent<Renderer>().material.color = wood;
+            var lidMat = lidMesh.GetComponent<Renderer>().material;
+            lidMat.color = wood;
+            lidMat.SetFloat("_Glossiness", 0.55f); // лак
+
+            // траурные ленты крест-накрест
+            foreach (bool along in new[] { true, false })
+            {
+                var band = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                band.name = along ? "RibbonLength" : "RibbonCross";
+                Object.DestroyImmediate(band.GetComponent<Collider>());
+                band.transform.SetParent(lidGo.transform, false);
+                band.transform.localPosition = new Vector3(0f, 0.045f, 0f);
+                band.transform.localScale = along
+                    ? new Vector3(0.3f, 0.06f, lidCol.size.z + 0.02f)
+                    : new Vector3(lidCol.size.x + 0.02f, 0.06f, 0.3f);
+                band.GetComponent<Renderer>().material.color = new Color(0.55f, 0.1f, 0.12f);
+            }
 
             var hinge = lidGo.AddComponent<HingeJoint>();
             hinge.connectedBody = rb;

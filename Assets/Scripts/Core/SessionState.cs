@@ -15,6 +15,13 @@ namespace DI
 
         public static void AddMoney(int amount) => PlayerPrefs.SetInt("di_money", Money + Mathf.Max(0, amount));
 
+        /// Чувствительность мыши (ползунок в меню).
+        public static float Sens
+        {
+            get => PlayerPrefs.GetFloat("di_sens", 3f);
+            set => PlayerPrefs.SetFloat("di_sens", Mathf.Clamp(value, 1f, 6f));
+        }
+
         // --- прогрессия заказов ---
 
         public static int Stars(string sceneName) => PlayerPrefs.GetInt($"di_stars_{sceneName}", 0);

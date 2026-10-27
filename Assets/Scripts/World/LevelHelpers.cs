@@ -44,6 +44,8 @@ namespace DI
             RenderSettings.fogStartDistance = 70f;
             RenderSettings.fogEndDistance = 170f;
             RenderSettings.fogColor = new Color(0.72f, 0.8f, 0.9f);
+
+            Clouds();
         }
 
         public static GameObject Slab(string name, Vector3 center, Vector3 size, float rotX, Color color)
@@ -269,13 +271,37 @@ namespace DI
             return coffin;
         }
 
-        /// Хвост уровня: менеджер + HUD + сетевой бутстрап.
+        /// Хвост уровня: менеджер + HUD + пауза + сетевой бутстрап.
         public static void AttachCore(GameObject levelGo)
         {
             if (DIGameManager.I == null) levelGo.AddComponent<DIGameManager>();
             levelGo.AddComponent<HUD>();
+            levelGo.AddComponent<PauseMenu>();
             if (SessionState.Mode != SessionMode.Solo)
                 levelGo.AddComponent<DINetworkManager>().Bootstrap(SessionState.Mode, SessionState.Ip);
+        }
+
+        /// Плоские облака — дешёвый шарм для неба.
+        public static void Clouds()
+        {
+            var cloudMat = new Material(Shader.Find("Standard"));
+            cloudMat.color = new Color(1f, 1f, 1f);
+            cloudMat.SetFloat("_Glossiness", 0f);
+
+            foreach (var p in new[]
+                     {
+                         new Vector3(-22f, 30f, -10f), new Vector3(18f, 34f, 15f),
+                         new Vector3(-14f, 32f, 45f), new Vector3(25f, 28f, 60f),
+                         new Vector3(-28f, 36f, 80f), new Vector3(10f, 33f, 95f)
+                     })
+            {
+                var cloud = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                cloud.name = "Cloud";
+                Object.DestroyImmediate(cloud.GetComponent<Collider>());
+                cloud.transform.position = p;
+                cloud.transform.localScale = new Vector3(9f, 2.2f, 5f);
+                cloud.GetComponent<Renderer>().sharedMaterial = cloudMat;
+            }
         }
     }
 }

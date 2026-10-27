@@ -99,7 +99,11 @@ namespace DI
             else DrawShop(x, y, w);
 
             // сетевые кнопки и выход — внизу
-            y = Screen.height - 150f;
+            y = Screen.height - 216f;
+            GUI.Label(new Rect(x, y, 330f, 24f), $"Чувствительность мыши: {SessionState.Sens:0.0}", sub);
+            SessionState.Sens = GUI.HorizontalSlider(new Rect(x + 340f, y + 5f, 240f, 22f), SessionState.Sens, 1f, 6f);
+
+            y = Screen.height - 170f;
             GUI.Label(new Rect(x, y, 50f, 30f), "IP:");
             ip = GUI.TextField(new Rect(x + 50f, y, 220f, 30f), ip, 64);
             if (GUI.Button(new Rect(x + 285f, y, 220f, 34f), "ХОСТИТЬ СМЕНУ")) Go(SessionMode.Host, null);
