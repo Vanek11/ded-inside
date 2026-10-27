@@ -28,7 +28,13 @@ namespace DI
         void OnTriggerStay(Collider other)
         {
             var rb = other.attachedRigidbody;
-            if (rb == null || rb.isKinematic) return;
+            if (rb == null) return;
+
+            // игрок плавает — тикает таймер «бездны»
+            var player = rb.GetComponent<PlayerController>();
+            if (player != null) player.MarkInWater();
+
+            if (rb.isKinematic) return;
             if (!doneThisStep.Add(rb)) return; // составной коллайдер = одна сила на тело
 
             float factor;

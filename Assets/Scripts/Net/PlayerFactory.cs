@@ -53,6 +53,7 @@ namespace DI
             go.AddComponent<NetworkObject>();
 
             if (withCamera) AttachCamera(go.transform, controller);
+            LevelHelpers.LastCheckpoint = go.transform.position + Vector3.up * 1.5f; // спавн = чекпоинт
             return go;
         }
 

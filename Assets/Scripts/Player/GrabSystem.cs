@@ -122,7 +122,9 @@ namespace DI
 
             var target = hit.rigidbody;
             if (target == null || target.isKinematic) return;
-            if (target == GetComponent<Rigidbody>()) return; // за себя хватать нельзя
+            // за себя и свою иерархию (свою модель) хватать нельзя
+            if (target == GetComponent<Rigidbody>()) return;
+            if (hit.collider.transform.IsChildOf(transform)) return; // за себя хватать нельзя
 
             held = target;
             heldMass = Mathf.Max(1f, target.mass);
@@ -174,9 +176,13 @@ namespace DI
             held.AddForceAtPosition(force, point);
 
             // отдача веса на игрока: горизонтальная составляющая тянет назад,
-            // вертикальную гасим (иначе персонажа подкидывает)
+            // вертикальную гасим (иначе персонажа подкидывает); ограничена, чтобы
+            // игрока не таскало волоком как флаг
             var prb = GetComponent<Rigidbody>();
             Vector3 reaction = -force * reactionOnPlayer;
+            float maxReaction = 250f;
+            if (reaction.sqrMagnitude > maxReaction * maxReaction)
+                reaction = reaction.normalized * maxReaction;
             prb.AddForce(new Vector3(reaction.x, 0f, reaction.z));
         }
 

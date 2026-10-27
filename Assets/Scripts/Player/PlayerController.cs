@@ -19,6 +19,7 @@ namespace DI
         Rigidbody rb;
         GrabSystem grab;
         float lastGrounded = -10f;
+        float waterTime;
 
         void Awake()
         {
@@ -64,10 +65,31 @@ namespace DI
             if (vel.y < -35f) rb.linearVelocity = new Vector3(vel.x, -35f, vel.z);
         }
 
+        /// Вода отмечает, что игрок в ней плавает (см. WaterVolume).
+        public void MarkInWater() => waterTime = 0.001f;
+
         void FixedUpdate()
         {
             bool grounded = CheckGrounded();
-            if (grounded) lastGrounded = Time.time;
+            if (grounded)
+            {
+                lastGrounded = Time.time;
+                waterTime = 0f; // на суше таймер «бездны» сброшен
+            }
+
+            // спасение из «бездны»: болтаешься в воде дольше 8 секунд —
+            // вороны относят тебя на последний чекпоинт
+            if (!grounded && waterTime > 0f)
+            {
+                waterTime += Time.fixedDeltaTime;
+                if (waterTime > 8f)
+                {
+                    waterTime = 0f;
+                    rb.position = LevelHelpers.SurfacePoint(LevelHelpers.LastCheckpoint) + Vector3.up * 0.3f;
+                    rb.linearVelocity = Vector3.zero;
+                    DIGameManager.I?.Event("Вороны вытащили тебя из воды и принесли на чекпоинт.");
+                }
+            }
 
             var input = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
             Vector3 fwd = Vector3.forward, right = Vector3.right;
