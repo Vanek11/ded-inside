@@ -11,6 +11,7 @@ namespace DI
         public float pushImpulse = 3.5f;
         public float cooldown = 2.5f;
         public string gag = "Гусь атакует!";
+        public string soundId = "goose";
 
         Rigidbody rb;
         float lastJump;
@@ -34,6 +35,7 @@ namespace DI
             coffin.GetComponent<Rigidbody>().AddForceAtPosition(dir * pushImpulse,
                 coffin.transform.position + Vector3.up * 0.1f);
 
+            Sfx.PlayAt(soundId, transform.position);
             DIGameManager.I?.Event(gag);
         }
     }

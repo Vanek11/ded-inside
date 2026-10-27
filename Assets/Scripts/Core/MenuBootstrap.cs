@@ -52,6 +52,7 @@ namespace DI
             var camGo = new GameObject("MainCamera");
             camGo.tag = "MainCamera";
             camGo.AddComponent<Camera>();
+            camGo.AddComponent<AudioListener>();
             var lightGo = new GameObject("Sun");
             var l = lightGo.AddComponent<Light>();
             l.type = LightType.Directional;

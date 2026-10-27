@@ -133,6 +133,7 @@ namespace DI
             scare.pushImpulse = 2.2f;
             scare.cooldown = 4f;
             scare.gag = "МУУУ! Корова не двигается с дороги.";
+            scare.soundId = "moo";
         }
 
         /// Длинный спуск-санки с вершины вниз к кладбищу.

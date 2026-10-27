@@ -67,6 +67,7 @@ namespace DI
             if (TiltDeg > tiltCreakDeg && Time.time - lastCreak > 1f)
             {
                 lastCreak = Time.time;
+                Sfx.PlayAt("creak", transform.position);
                 DIGameManager.I?.Event("Скри-и-ип... дед сползает!");
             }
         }

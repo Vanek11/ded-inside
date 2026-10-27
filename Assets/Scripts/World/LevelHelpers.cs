@@ -206,6 +206,37 @@ namespace DI
                             new Vector3(0.15f, 1.2f, 0.15f), 0f, Stone);
             Slab("FenceLeft", new Vector3(-7f, baseY + 1.1f, goalZ - 1f), new Vector3(0.1f, 0.12f, 13f), 0f, Stone);
             Slab("FenceRight", new Vector3(7f, baseY + 1.1f, goalZ - 1f), new Vector3(0.1f, 0.12f, 13f), 0f, Stone);
+
+            Caretaker(new Vector3(3.2f, baseY, goalZ - 11f));
+        }
+
+        /// Ворчливый смотритель: стоит у ограды, комментирует доставку.
+        static void Caretaker(Vector3 basePos)
+        {
+            var go = new GameObject("Caretaker");
+            go.transform.position = basePos + new Vector3(0f, 0.85f, 0f);
+
+            var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            body.name = "Body";
+            body.transform.SetParent(go.transform, false);
+            body.transform.localScale = new Vector3(0.9f, 0.85f, 0.9f);
+            body.GetComponent<Renderer>().material.color = new Color(0.25f, 0.32f, 0.24f);
+
+            var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            head.name = "Head";
+            head.transform.SetParent(go.transform, false);
+            head.transform.localPosition = new Vector3(0f, 1f, 0f);
+            head.transform.localScale = Vector3.one * 0.42f;
+            head.GetComponent<Renderer>().material.color = new Color(0.8f, 0.65f, 0.5f);
+
+            var hat = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            hat.name = "Hat";
+            hat.transform.SetParent(go.transform, false);
+            hat.transform.localPosition = new Vector3(0f, 1.28f, 0f);
+            hat.transform.localScale = new Vector3(0.85f, 0.15f, 0.85f);
+            hat.GetComponent<Renderer>().material.color = new Color(0.14f, 0.14f, 0.16f);
+
+            go.AddComponent<GrumpCaretaker>();
         }
 
         public static void SpawnPlayer(Vector3 pos) => PlayerFactory.BuildPlayer(pos, true);
@@ -271,12 +302,13 @@ namespace DI
             return coffin;
         }
 
-        /// Хвост уровня: менеджер + HUD + пауза + сетевой бутстрап.
+        /// Хвост уровня: менеджер + HUD + пауза + ворона + сетевой бутстрап.
         public static void AttachCore(GameObject levelGo)
         {
             if (DIGameManager.I == null) levelGo.AddComponent<DIGameManager>();
             levelGo.AddComponent<HUD>();
             levelGo.AddComponent<PauseMenu>();
+            Crow.Spawn(new Vector3(0f, 9f, 10f), 40f);
             if (SessionState.Mode != SessionMode.Solo)
                 levelGo.AddComponent<DINetworkManager>().Bootstrap(SessionState.Mode, SessionState.Ip);
         }

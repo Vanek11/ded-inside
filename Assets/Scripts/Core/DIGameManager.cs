@@ -107,6 +107,8 @@ namespace DI
 
         public void MarkGoalInside() => goalMarkedThisStep = true;
 
+        public void AddStyle(float value) => StylePoints = Mathf.Max(0f, StylePoints + value);
+
         public void Event(string message)
         {
             feed.Add($"[{OrderTime:0.0}с] {message}");
@@ -179,6 +181,7 @@ namespace DI
 
             SessionState.SetStars(SceneManager.GetActiveScene().name, r.Stars);
             SessionState.AddMoney(r.Total);
+            Sfx.PlayAt("cash");
             Event($"Касса пополнена на {r.Total} ₽");
         }
 

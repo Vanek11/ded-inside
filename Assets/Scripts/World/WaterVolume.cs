@@ -11,8 +11,19 @@ namespace DI
         public float grandpaBuoyancy = 0.82f;
 
         readonly HashSet<Rigidbody> doneThisStep = new HashSet<Rigidbody>();
+        static float lastSplash;
 
         void FixedUpdate() => doneThisStep.Clear();
+
+        void OnTriggerEnter(Collider other)
+        {
+            var rb = other.attachedRigidbody;
+            if (rb == null || rb.isKinematic) return;
+            if (rb.GetComponent<CoffinBody>() == null && rb.GetComponent<GrandpaPart>() == null) return;
+            if (Time.time - lastSplash < 0.4f) return;
+            lastSplash = Time.time;
+            Sfx.PlayAt("splash", rb.worldCenterOfMass);
+        }
 
         void OnTriggerStay(Collider other)
         {
