@@ -26,7 +26,7 @@ namespace DI
         void BuildOnce()
         {
             built = true;
-            LevelHelpers.SetCarves((new Vector3(0f, 0f, 48f), 3.4f, 4f, 0.5f)); // брод
+            LevelHelpers.SetCarves((new Vector3(0f, 0f, 48f), 3.4f, 4f, 0.22f, 0.0f)); // брод
             LevelHelpers.Sky();
             LevelHelpers.TerrainMesh();
             LevelHelpers.StartHouse();
@@ -113,7 +113,7 @@ namespace DI
         void Ford()
         {
             // вода в вырезе брода, дорога чуть выступает над водой
-            LevelHelpers.WaterEllipse(new Vector2(0f, 48f), 2.7f, 3.2f, 0.0f);
+            LevelHelpers.WaterEllipse(new Vector2(0f, 48f), 2.5f, 3.0f, 0.0f);
             foreach (float x in new[] { -2.6f, 2.6f })
                 foreach (float z in new[] { 44.5f, 48f, 51.5f })
                 {

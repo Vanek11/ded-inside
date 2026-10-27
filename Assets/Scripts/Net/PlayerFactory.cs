@@ -33,6 +33,17 @@ namespace DI
             visual.transform.localPosition = new Vector3(0f, 0.85f, 0f);
             visual.transform.localScale = new Vector3(0.62f, 1.2f, 0.5f);
             visual.GetComponent<Renderer>().material.color = new Color(0.9f, 0.5f, 0.15f);
+            visual.SetActive(false); // примитив-заглушка — поверх ставим блочного персонажа
+
+            // блочный персонаж Kenney (текстурный)
+            var character = Art.Model("characters/character-a", Vector3.zero, 180f, 1f, 0f, keepMaterials: true);
+            if (character != null)
+            {
+                character.name = "Character";
+                character.transform.SetParent(go.transform, false);
+                character.transform.localPosition = new Vector3(0f, 0f, 0f);
+                CharacterBob.Attach(character, rb);
+            }
 
             var controller = go.AddComponent<PlayerController>();
             go.AddComponent<GrabSystem>();

@@ -37,10 +37,14 @@ public static class SceneRenders
         // обзорные точки вдоль маршрута
         var shots = new (Vector3 pos, Vector3 look)[]
         {
-            (new Vector3(7f, 3f, -12f),  new Vector3(0f, 2.5f, -23f)),  // дом и крыльцо
-            (new Vector3(6f, 3.5f, 10f), new Vector3(0f, 1f, 24f)),     // середина
-            (new Vector3(6f, 3f, 36f),   new Vector3(0f, -0.5f, 46f)),  // вода
-            (new Vector3(7f, 4.5f, 66f), new Vector3(0f, 2f, 80f)),     // кладбище
+            (new Vector3(10f, 2.4f, -11f), new Vector3(-2f, 2.2f, -22f)), // дом сбоку
+            (new Vector3(7f, 3.5f, 8f),    new Vector3(0f, 1f, 26f)),     // дорога и холмы
+            (new Vector3(6f, 2.6f, 34f),   new Vector3(0f, -0.4f, 44f)),  // пруд и мост
+            (new Vector3(0f, 25f, 46f),    new Vector3(0f, 0f, 40f)),     // пруд сверху
+            (new Vector3(-7f, 1.2f, 42f),  new Vector3(0f, 0f, 42f)),     // пруд с воды
+            (new Vector3(7f, 4.2f, 66f),   new Vector3(0f, 2f, 80f)),     // кладбище
+            (new Vector3(0f, 60f, 30f),    new Vector3(0f, 0f, 30.1f)),   // карта сверху
+            (new Vector3(30f, 8f, 42f),    new Vector3(0f, -1f, 42f)),    // пруд сбоку свет
         };
 
         System.IO.Directory.CreateDirectory("Screenshots");

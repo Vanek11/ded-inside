@@ -27,7 +27,7 @@ namespace DI
         void BuildOnce()
         {
             built = true;
-            LevelHelpers.SetCarves((new Vector3(0f, 0f, 32f), 4.5f, 6f, 1.6f)); // овраг с ручьём
+            LevelHelpers.SetCarves((new Vector3(0f, 0f, 32f), 4.5f, 6f, 1.0f, -0.7f)); // овраг с ручьём
             LevelHelpers.Sky();
             LevelHelpers.TerrainMesh();
             LevelHelpers.StartHouse();
@@ -83,7 +83,7 @@ namespace DI
             for (float z = 26.2f; z < 38.2f; z += 1.95f)
                 Art.Model("nature/bridge_wood", new Vector3(0f, 3.58f, z), 90f, 1f, 0.25f);
 
-            LevelHelpers.WaterEllipse(new Vector2(0f, 32f), 3.8f, 5.0f, -0.7f);
+            LevelHelpers.WaterEllipse(new Vector2(0f, 32f), 3.7f, 4.9f, -0.7f);
 
             // пандус из ручья наверх, к выходу с моста
             LevelHelpers.Slab("RavineRamp", new Vector3(5.5f, 1.6f, 33f), new Vector3(2.4f, 0.1f, 10.4f), -20f, LevelHelpers.Wood);

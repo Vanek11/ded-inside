@@ -28,7 +28,7 @@ namespace DI
         void BuildOnce()
         {
             built = true;
-            LevelHelpers.SetCarves((new Vector3(0f, 0f, 42f), 3.2f, 5.5f, 0.9f)); // котлован пруда
+            LevelHelpers.SetCarves((new Vector3(0f, 0f, 42f), 3.2f, 5.5f, 0.3f, 0.02f)); // котлован пруда
             LevelHelpers.Sky();
             LevelHelpers.TerrainMesh();
             LevelHelpers.StartHouse();
@@ -43,7 +43,7 @@ namespace DI
             LevelHelpers.SlabEarth("Plateau", new Vector3(0f, 1.75f, 81f), new Vector2(15f, 14f), LevelHelpers.Dirt);
 
             // пруд в котловане: вода точно по урезу, мосток поперёк без зазоров
-            LevelHelpers.WaterEllipse(new Vector2(0f, 42f), 3.0f, 5.2f, 0.02f);
+            LevelHelpers.WaterEllipse(new Vector2(0f, 42f), 2.6f, 4.6f, 0.02f);
             // мост одним куском, растянутым через весь пруд
             var pondBridge = Art.Model("nature/bridge_woodNarrow", new Vector3(0f, 0.05f, 42f), 90f, 1f, 0.25f);
             if (pondBridge != null)

@@ -30,6 +30,26 @@ namespace DI
             Attach(legL.gameObject, state, false);
             Attach(legR.gameObject, state, false);
 
+            // глаза — характер (стиль R.E.P.O.)
+            foreach (float ex in new[] { -0.2f, 0.2f })
+            {
+                var eye = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                eye.name = "Eye";
+                Object.DestroyImmediate(eye.GetComponent<Collider>());
+                eye.transform.SetParent(head.transform, false);
+                eye.transform.localPosition = new Vector3(ex, 0.14f, 0.4f);
+                eye.transform.localScale = new Vector3(0.22f, 0.26f, 0.12f);
+                eye.GetComponent<Renderer>().material.color = Color.white;
+
+                var pupil = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                pupil.name = "Pupil";
+                Object.DestroyImmediate(pupil.GetComponent<Collider>());
+                pupil.transform.SetParent(head.transform, false);
+                pupil.transform.localPosition = new Vector3(ex, 0.14f, 0.48f);
+                pupil.transform.localScale = Vector3.one * 0.09f;
+                pupil.GetComponent<Renderer>().material.color = new Color(0.08f, 0.08f, 0.1f);
+            }
+
             // усы — без коллайдера, чисто для достоинства
             var mustache = GameObject.CreatePrimitive(PrimitiveType.Cube);
             mustache.name = "Mustache";

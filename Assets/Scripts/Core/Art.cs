@@ -22,8 +22,9 @@ public static class Art
     /// Загрузить и поставить модель из Resources/Art/<rel>.
     /// По всем мешам назначается vertex-color материал; добавляется простой
     /// BoxCollider по нижней части габаритов (если colliderFraction > 0).
+    /// keepMaterials: не перекрашивать (для текстурированных персонажей Kenney).
     public static GameObject Model(string rel, Vector3 pos, float rotYDeg = 0f, float scale = 1f,
-        float colliderFraction = 0f)
+        float colliderFraction = 0f, bool keepMaterials = false, Color tint = default)
     {
         var prefab = Resources.Load<GameObject>($"Art/{rel}");
         if (prefab == null)
@@ -35,10 +36,14 @@ public static class Art
         var go = Object.Instantiate(prefab, pos, Quaternion.Euler(0f, rotYDeg, 0f));
         go.transform.localScale = Vector3.one * scale;
 
-        var vc = VertexColorMaterial();
-        if (vc != null)
+        // материалы FBX уже несут цвета Kenney (leafsGreen, colormap и т.п.) —
+        // НЕ перекрашиваем; tint только приглушает/подкрашивает при необходимости
+        if (tint != default)
             foreach (var r in go.GetComponentsInChildren<MeshRenderer>())
-                r.sharedMaterial = vc;
+            {
+                r.material.color = tint;
+                r.material.SetFloat("_Glossiness", 0.05f);
+            }
 
         // выравнивание: у моделей Kenney точка крепления не у основания —
         // опускаем/поднимаем так, чтобы нижняя граница габаритов стояла на pos.y
@@ -146,13 +151,13 @@ public static class Art
 
             var bloom = profile.AddSettings<UnityEngine.Rendering.PostProcessing.Bloom>();
             bloom.enabled.Override(true);
-            bloom.intensity.Override(1.1f);
-            bloom.threshold.Override(0.9f);
+            bloom.intensity.Override(0.35f);
+            bloom.threshold.Override(1.15f);
 
             var cg = profile.AddSettings<UnityEngine.Rendering.PostProcessing.ColorGrading>();
             cg.enabled.Override(true);
             cg.tonemapper.Override(UnityEngine.Rendering.PostProcessing.Tonemapper.ACES);
-            cg.saturation.Override(8f);
+            cg.saturation.Override(12f);
             cg.contrast.Override(10f);
             cg.temperature.Override(8f);
 

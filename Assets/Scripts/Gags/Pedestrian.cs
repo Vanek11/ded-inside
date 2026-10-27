@@ -57,6 +57,16 @@ namespace DI
             body.transform.localPosition = new Vector3(0f, 0.8f, 0f);
             body.transform.localScale = new Vector3(0.9f, 0.85f, 0.9f);
             body.GetComponent<Renderer>().material.color = new Color(0.55f, 0.45f, 0.6f);
+            body.SetActive(false); // заглушка
+
+            // блочный персонаж вместо капсулы
+            var model = Art.Model("characters/character-b", Vector3.zero, 0f, 1f, 0f, keepMaterials: true);
+            if (model != null)
+            {
+                model.name = "Character";
+                model.transform.SetParent(go.transform, false);
+                CharacterBob.Attach(model, rb);
+            }
 
             var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             head.name = "Head";
