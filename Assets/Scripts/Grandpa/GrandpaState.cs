@@ -12,8 +12,23 @@ namespace DI
         float lastCatch = -10f;
         float waterTimer;
         int waterTouches;
+        float nextGroan;
 
-        void Awake() => rootRb = GetComponent<Rigidbody>();
+        void Awake()
+        {
+            rootRb = GetComponent<Rigidbody>();
+            nextGroan = Time.time + Random.Range(15f, 30f);
+        }
+
+        void Update()
+        {
+            // пасхалка «А он точно?..»: дед иногда постанывает
+            if (DIGameManager.I != null && DIGameManager.I.Phase != OrderPhase.Carry) return;
+            if (Time.time < nextGroan) return;
+            nextGroan = Time.time + Random.Range(25f, 45f);
+            Sfx.PlayAt("groan", transform.position);
+            if (Random.value < 0.35f) DIGameManager.I?.Event("Дед: «М-м-м...»");
+        }
 
         void FixedUpdate()
         {

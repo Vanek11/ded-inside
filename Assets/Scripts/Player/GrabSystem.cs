@@ -23,6 +23,7 @@ namespace DI
         Vector3 localPoint;
         float heldMass = 1f;
         float holdHeight = 0.9f;
+        bool canGrab;
         ThirdPersonCamera camCtrl;
 
         public bool IsHolding => held != null;
@@ -43,9 +44,27 @@ namespace DI
                 ReleaseHeld();
             }
             UpdateHandAnchor();
+            UpdateCanGrab();
 
             if (camCtrl == null) camCtrl = GetComponentInChildren<ThirdPersonCamera>();
             if (camCtrl != null) camCtrl.freezePitch = held != null;
+        }
+
+        /// Прицел подскажет: жёлтый — до цели дотягиваешься.
+        void UpdateCanGrab()
+        {
+            canGrab = false;
+            if (held != null) return;
+            var cam = Camera.main;
+            if (cam == null) return;
+
+            int mask = LayerMask.GetMask("Grabbable", "Grandpa");
+            if (mask == 0) mask = ~0;
+            if (!Physics.Raycast(cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f)), out var hit, 100f, mask))
+                return;
+
+            canGrab = Vector3.Distance(transform.position, hit.point) <= reach
+                      && hit.rigidbody != null && !hit.rigidbody.isKinematic;
         }
 
         void ReleaseHeld()
@@ -160,9 +179,11 @@ namespace DI
 
         void OnGUI()
         {
-            // прицел: белый пока руки пустые, зелёный пока что-то держим
+            // прицел: белый — пусто, жёлтый — можно схватить, зелёный — держим
             var prev = GUI.color;
-            GUI.color = held != null ? new Color(0.4f, 1f, 0.4f) : Color.white;
+            GUI.color = held != null ? new Color(0.4f, 1f, 0.4f)
+                : canGrab ? new Color(1f, 0.9f, 0.25f)
+                : Color.white;
             var style = new GUIStyle(GUI.skin.label) { fontSize = 26, alignment = TextAnchor.MiddleCenter };
             GUI.Label(new Rect(Screen.width / 2f - 30f, Screen.height / 2f - 25f, 60f, 50f),
                 held != null ? "\u25CF" : "+", style);

@@ -92,6 +92,14 @@ namespace DI
                             : 0f;
                         return (a + b) * 0.5f;
                     });
+                case "groan": // «М-м-м...» из гроба — пасхалка «А он точно?..»
+                    return Gen("groan", 0.8f, t =>
+                    {
+                        float f = 98f + 14f * Mathf.Sin(2f * Mathf.PI * 3.5f * t) - 18f * t;
+                        float v = Mathf.Sin(2f * Mathf.PI * f * t)
+                                  + 0.4f * Mathf.Sin(2f * Mathf.PI * f * 2f * t);
+                        return v * 0.22f * Mathf.Clamp01(3f * t) * Mathf.Clamp01(4f * (0.8f - t));
+                    });
                 default:
                     return null;
             }
