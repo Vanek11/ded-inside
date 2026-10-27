@@ -11,11 +11,16 @@ namespace DI
         public static readonly Color Wood = new Color(0.56f, 0.42f, 0.27f);
         public static readonly Color Stone = new Color(0.57f, 0.57f, 0.58f);
 
-        // лёгкие волны рельефа, чтобы не было «бесконечной плоскости»
-        public static float Ground(float x, float z) => Mathf.Clamp(
-            0.18f * Mathf.Sin(x * 0.23f) * Mathf.Sin(z * 0.19f) +
-            0.09f * Mathf.Sin(x * 0.53f + 1.7f) * Mathf.Sin(z * 0.47f + 2.3f),
-            -0.22f, 0.22f);
+        // лёгкие волны + холмы по бокам от дороги (дорога остаётся в низине)
+        public static float Ground(float x, float z)
+        {
+            float waves = 0.18f * Mathf.Sin(x * 0.23f) * Mathf.Sin(z * 0.19f) +
+                          0.09f * Mathf.Sin(x * 0.53f + 1.7f) * Mathf.Sin(z * 0.47f + 2.3f);
+            float mask = Mathf.SmoothStep(3.5f, 16f, Mathf.Abs(x));
+            float hill = Mathf.Sin(x * 0.11f + 2.1f) * Mathf.Cos(z * 0.09f + 0.7f) * 2.2f
+                         + 0.8f * Mathf.Sin(z * 0.17f + x * 0.07f);
+            return Mathf.Clamp(waves + mask * hill, -0.5f, 3.2f);
+        }
 
         /// Небо, солнце, туман, окружающий свет — сцена перестаёт быть «плоской заливкой».
         public static void Sky()
@@ -52,6 +57,13 @@ namespace DI
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.name = name;
+            // земляные плиты (дороги) — толстые, с «бермой» ниже уровня травы
+            if (color == Dirt)
+            {
+                float top = center.y + size.y * 0.5f;
+                size.y = Mathf.Max(size.y, 0.9f);
+                center.y = top - size.y * 0.5f;
+            }
             go.transform.position = center;
             go.transform.localScale = size;
             go.transform.rotation = Quaternion.Euler(rotX, 0f, 0f);
@@ -59,6 +71,14 @@ namespace DI
                 : color == Stone ? "stone" : color == Grass ? "grass" : null;
             Art.Paint(go.GetComponent<Renderer>(), color, 0.08f, 0f, tex);
             return go;
+        }
+
+        /// Плато от верха centerTop.y до дна мира: выглядит земляным массивом, а не доской.
+        public static GameObject SlabEarth(string name, Vector3 centerTop, Vector2 xz, Color color)
+        {
+            float top = centerTop.y, bottom = -0.6f;
+            return Slab(name, new Vector3(centerTop.x, (top + bottom) * 0.5f, centerTop.z),
+                new Vector3(xz.x, top - bottom, xz.y), 0f, color);
         }
 
         /// Последний пройденный чекпоинт — сюда возвращаем упавших за край мира.
@@ -93,9 +113,24 @@ namespace DI
             var mesh = new Mesh { vertices = verts, uv = uv, triangles = tris };
             mesh.RecalculateNormals();
 
+            // пятнистая раскраска луга vertex color'ами
+            var colors = new Color[verts.Length];
+            for (int i = 0; i < verts.Length; i++)
+            {
+                float v = verts[i].x, w = verts[i].z;
+                float patch = Mathf.Sin(v * 0.21f + 1.3f) * Mathf.Cos(w * 0.17f + 0.4f)
+                              + 0.5f * Mathf.Sin(v * 0.55f + w * 0.41f);
+                float shade = Mathf.Clamp01(0.5f + patch * 0.35f);
+                colors[i] = Color.Lerp(new Color(0.62f, 0.72f, 0.5f), new Color(0.45f, 0.58f, 0.36f), shade);
+                if (verts[i].y > 1.4f) colors[i] = Color.Lerp(colors[i], new Color(0.55f, 0.55f, 0.4f), 0.35f);
+            }
+            mesh.colors = colors;
+
             var go = new GameObject("Terrain");
             go.AddComponent<MeshFilter>().sharedMesh = mesh;
-            Art.Paint(go.AddComponent<MeshRenderer>(), Grass, 0f, 0f, "grass", 44f);
+            var r = go.AddComponent<MeshRenderer>();
+            var m = Art.VertexColorMaterial();
+            if (m != null) r.sharedMaterial = m; else Art.Paint(r, Grass, 0f, 0f, "grass", 44f);
             var col = go.AddComponent<MeshCollider>();
             col.sharedMesh = mesh;
         }

@@ -98,12 +98,12 @@ namespace DI
 
         void DrawObjective()
         {
-            var r = new Rect(Screen.width - 332f, 12f, 320f, 142f);
+            var r = new Rect(Screen.width - 332f, 12f, 320f, 158f);
             Panel(r);
             float x = r.x + 14f, y = r.y + 10f, w = r.width - 28f;
 
             string goal = game.Phase == OrderPhase.Carry
-                ? "Донесите гроб с дедом до могилы на кладбище"
+                ? "Донесите гроб с дедом до могилы"
                 : "Церемония — см. центр экрана";
             GUI.Label(new Rect(x, y, w, 24f), "ЗАДАЧА", title);
             y += 28f;
@@ -111,12 +111,14 @@ namespace DI
             y += 24f;
             GUI.Label(new Rect(x, y, w, 20f),
                 $"{(game.WillDone ? "[x]" : "[ ]")} Завещание: конверт Буканову", small);
-            y += 20f;
+            y += 22f;
             GUI.Label(new Rect(x, y, w, 20f),
-                $"{(game.CaneDelivered ? "[x]" : "[ ]")} Трость деда — донести до могилы (+30%)", small);
-            y += 20f;
+                $"{(game.CaneDelivered ? "[x]" : "[ ]")} Трость деда (+30%)", small);
+            y += 22f;
             GUI.Label(new Rect(x, y, w, 20f),
-                "Бомж Толя — подвезти в гробе (+50 стиля)", small);
+                $"{(game.TolyaAboard ? "[x]" : "[ ]")} Толя в гробе (+50 стиля)", small);
+            y += 24f;
+            GUI.Label(new Rect(x, y, w, 20f), "Esc — пауза · F1 — админка (dev)", small);
         }
 
         void DrawFeed()

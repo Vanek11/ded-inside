@@ -40,16 +40,24 @@ public static class Art
             foreach (var r in go.GetComponentsInChildren<MeshRenderer>())
                 r.sharedMaterial = vc;
 
+        // выравнивание: у моделей Kenney точка крепления не у основания —
+        // опускаем/поднимаем так, чтобы нижняя граница габаритов стояла на pos.y
+        var bounds = new Bounds(go.transform.position, Vector3.zero);
+        bool hasBounds = false;
+        foreach (var r in go.GetComponentsInChildren<MeshRenderer>())
+        {
+            bounds.Encapsulate(r.bounds);
+            hasBounds = true;
+        }
+        if (hasBounds)
+        {
+            go.transform.position += Vector3.up * (pos.y - bounds.min.y);
+            bounds.center += Vector3.up * (pos.y - bounds.min.y);
+        }
+
         if (colliderFraction > 0f)
         {
-            var bounds = new Bounds(go.transform.position, Vector3.zero);
-            bool has = false;
-            foreach (var r in go.GetComponentsInChildren<MeshRenderer>())
-            {
-                bounds.Encapsulate(r.bounds);
-                has = true;
-            }
-            if (has)
+            if (hasBounds)
             {
                 var col = go.AddComponent<BoxCollider>();
                 col.center = new Vector3(0f, bounds.size.y * colliderFraction * 0.5f, 0f);

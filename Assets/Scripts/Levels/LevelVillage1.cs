@@ -39,7 +39,7 @@ namespace DI
             LevelHelpers.Slab("Road1", new Vector3(0f, 0.03f, 35f), new Vector3(3.4f, 0.1f, 2.4f), 0f, LevelHelpers.Dirt);
             LevelHelpers.Slab("Road2", new Vector3(0f, 0.03f, 56f), new Vector3(3.4f, 0.1f, 12f), 0f, LevelHelpers.Dirt);
             LevelHelpers.Slab("RoadSlopeUp2", new Vector3(0f, 0.84f, 68f), new Vector3(3.4f, 0.1f, 12.3f), -8f, LevelHelpers.Dirt);
-            LevelHelpers.Slab("Plateau", new Vector3(0f, 1.70f, 81f), new Vector3(10f, 0.1f, 14f), 0f, LevelHelpers.Dirt);
+            LevelHelpers.SlabEarth("Plateau", new Vector3(0f, 1.75f, 81f), new Vector2(10f, 14f), LevelHelpers.Dirt);
 
             // пруд с деревянным мостком
             LevelHelpers.Water(new Vector3(0f, -0.3f, 42f), new Vector3(16f, 0.8f, 12f), 0.1f);
