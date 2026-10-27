@@ -37,6 +37,8 @@ namespace DI
 
         void Update()
         {
+            if (PauseMenu.Open) return; // на паузе руки не слушаются
+
             bool want = Input.GetMouseButton(0);
             if (want && held == null) TryGrab();
             else if (!want && held != null)

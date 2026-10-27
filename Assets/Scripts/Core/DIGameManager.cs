@@ -52,6 +52,9 @@ namespace DI
         {
             if (I != null && I != this) { Destroy(gameObject); return; }
             I = this;
+
+            // страховка после перезапуска сцены (R) прямо из паузы
+            PauseMenu.ForceClosed();
         }
 
         void Start()
@@ -62,6 +65,8 @@ namespace DI
 
         void Update()
         {
+            if (PauseMenu.Open) return; // на паузе заказ замирает целиком
+
             if (Phase == OrderPhase.Done)
             {
                 if (Input.GetKeyDown(KeyCode.R))

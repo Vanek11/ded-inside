@@ -31,6 +31,7 @@ namespace DI
             }
 
             if (!target) return;
+            if (PauseMenu.Open) return; // на паузе камера замирает — курсор крутит только себя
 
             yaw += Input.GetAxis("Mouse X") * Sens;
             if (!freezePitch)

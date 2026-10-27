@@ -8,6 +8,13 @@ namespace DI
     {
         public static bool Open { get; private set; }
 
+        /// Сброс паузы (после перезагрузки сцены из паузы).
+        public static void ForceClosed()
+        {
+            Open = false;
+            Time.timeScale = 1f;
+        }
+
         Texture2D dim, panel;
 
         void Update()
