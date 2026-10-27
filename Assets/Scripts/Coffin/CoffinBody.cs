@@ -55,18 +55,19 @@ namespace DI
             // страховка: гроб упал за край мира — возвращаем с дедом на чекпоинт
             if (transform.position.y < -15f && Grandpa != null)
             {
+                var home = LevelHelpers.SurfacePoint(LevelHelpers.LastCheckpoint) + Vector3.up * 0.3f;
                 var parts = Grandpa.GetComponentsInChildren<GrandpaPart>();
                 for (int i = 0; i < parts.Length; i++)
                 {
                     var prb = parts[i].GetComponent<Rigidbody>();
-                    prb.position = LevelHelpers.LastCheckpoint + new Vector3(0f, 0.5f, i * 0.3f);
+                    prb.position = home + new Vector3(0f, 0.5f, i * 0.3f);
                     prb.linearVelocity = Vector3.zero;
                 }
-                rb.position = LevelHelpers.LastCheckpoint;
+                rb.position = home;
                 rb.linearVelocity = Vector3.zero;
                 if (Lid != null)
                 {
-                    Lid.position = LevelHelpers.LastCheckpoint + Vector3.up * 0.6f;
+                    Lid.position = home + Vector3.up * 0.6f;
                     Lid.linearVelocity = Vector3.zero;
                 }
                 DIGameManager.I?.Event("Гроб выпал из мира — вороны вернули его на чекпоинт.");

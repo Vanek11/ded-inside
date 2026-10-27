@@ -26,6 +26,7 @@ namespace DI
         void BuildOnce()
         {
             built = true;
+            LevelHelpers.SetCarves((new Vector3(0f, 0f, 48f), 3.4f, 4f, 0.5f)); // брод
             LevelHelpers.Sky();
             LevelHelpers.TerrainMesh();
             LevelHelpers.StartHouse();
@@ -33,10 +34,10 @@ namespace DI
             // дорога: до огорода, через брод, после — до подъёма
             LevelHelpers.Slab("Road0", new Vector3(0f, 0.03f, -2f), new Vector3(3.4f, 0.1f, 24f), 0f, LevelHelpers.Dirt);
             LevelHelpers.Slab("Road1", new Vector3(0f, 0.03f, 42f), new Vector3(3.4f, 0.1f, 4f), 0f, LevelHelpers.Dirt);
-            LevelHelpers.Slab("RoadFord", new Vector3(0f, -0.16f, 48f), new Vector3(3.4f, 0.1f, 8.4f), 0f, LevelHelpers.Dirt);
+            LevelHelpers.Slab("RoadFord", new Vector3(0f, -0.05f, 48f), new Vector3(3.4f, 0.1f, 8.4f), 0f, LevelHelpers.Dirt);
             LevelHelpers.Slab("Road2", new Vector3(0f, 0.03f, 58f), new Vector3(3.4f, 0.1f, 8f), 0f, LevelHelpers.Dirt);
             LevelHelpers.Slab("RoadSlopeUp", new Vector3(0f, 0.84f, 68f), new Vector3(3.4f, 0.1f, 12.3f), -8f, LevelHelpers.Dirt);
-            LevelHelpers.SlabEarth("Plateau", new Vector3(0f, 1.75f, 81f), new Vector2(10f, 14f), LevelHelpers.Dirt);
+            LevelHelpers.SlabEarth("Plateau", new Vector3(0f, 1.75f, 81f), new Vector2(15f, 14f), LevelHelpers.Dirt);
 
             Garden();
             Ford();
@@ -111,7 +112,8 @@ namespace DI
         /// Брод: дорога уходит под мелкую воду, по краям камни.
         void Ford()
         {
-            LevelHelpers.Water(new Vector3(0f, -0.35f, 48f), new Vector3(12f, 0.5f, 8f), -0.12f);
+            // вода в вырезе брода, дорога чуть выступает над водой
+            LevelHelpers.WaterEllipse(new Vector2(0f, 48f), 2.7f, 3.2f, 0.0f);
             foreach (float x in new[] { -2.6f, 2.6f })
                 foreach (float z in new[] { 44.5f, 48f, 51.5f })
                 {

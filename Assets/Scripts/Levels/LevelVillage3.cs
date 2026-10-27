@@ -27,6 +27,7 @@ namespace DI
         void BuildOnce()
         {
             built = true;
+            LevelHelpers.SetCarves((new Vector3(0f, 0f, 32f), 4.5f, 6f, 1.6f)); // овраг с ручьём
             LevelHelpers.Sky();
             LevelHelpers.TerrainMesh();
             LevelHelpers.StartHouse();
@@ -76,13 +77,13 @@ namespace DI
             }
         }
 
-        /// Узкий мост через овраг (модели моста), в овраге ручей: упал — плавай.
+        /// Мост через овраг (модели моста), внизу ручей в вырезе рельефа.
         void Bridge()
         {
-            for (float z = 26f; z < 38f; z += 2f)
-                Art.Model("nature/bridge_wood", new Vector3(0f, 3.5f, z + 1f), 0f, 1f, 0.25f);
+            for (float z = 26.2f; z < 38.2f; z += 1.95f)
+                Art.Model("nature/bridge_wood", new Vector3(0f, 3.58f, z), 90f, 1f, 0.25f);
 
-            LevelHelpers.Water(new Vector3(0f, -0.35f, 32f), new Vector3(10f, 0.5f, 10f), -0.12f);
+            LevelHelpers.WaterEllipse(new Vector2(0f, 32f), 3.8f, 5.0f, -0.7f);
 
             // пандус из ручья наверх, к выходу с моста
             LevelHelpers.Slab("RavineRamp", new Vector3(5.5f, 1.6f, 33f), new Vector3(2.4f, 0.1f, 10.4f), -20f, LevelHelpers.Wood);

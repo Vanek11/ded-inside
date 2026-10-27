@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DI
@@ -11,15 +12,41 @@ namespace DI
         public static readonly Color Wood = new Color(0.56f, 0.42f, 0.27f);
         public static readonly Color Stone = new Color(0.57f, 0.57f, 0.58f);
 
-        // лёгкие волны + холмы по бокам от дороги (дорога остаётся в низине)
+        // вырезы рельефа (пруды, броды, овраги) — уровень задаёт перед постройкой
+        struct Carve { public Vector3 center; public float halfW, halfL, depth; }
+        static readonly List<Carve> carves = new List<Carve>();
+
+        public static void SetCarves(params (Vector3 center, float halfW, float halfL, float depth)[] list)
+        {
+            carves.Clear();
+            foreach (var (c, w, l, d) in list) carves.Add(new Carve { center = c, halfW = w, halfL = l, depth = d });
+        }
+
+        static float CarveDepth(float x, float z)
+        {
+            float result = 0f;
+            foreach (var cv in carves)
+            {
+                float dx = (x - cv.center.x) / cv.halfW;
+                float dz = (z - cv.center.z) / cv.halfL;
+                float d = Mathf.Sqrt(dx * dx + dz * dz);
+                float t = 1f - Mathf.SmoothStep(0.6f, 1.05f, d); // 1 в центре, 0 за краем эллипса
+                result = Mathf.Max(result, cv.depth * t);
+            }
+            return result;
+        }
+
+        // дорога в низине: у дороги пологие берега, большие холмы — вдали (рамка мира)
         public static float Ground(float x, float z)
         {
             float waves = 0.18f * Mathf.Sin(x * 0.23f) * Mathf.Sin(z * 0.19f) +
                           0.09f * Mathf.Sin(x * 0.53f + 1.7f) * Mathf.Sin(z * 0.47f + 2.3f);
-            float mask = Mathf.SmoothStep(3.5f, 16f, Mathf.Abs(x));
-            float hill = Mathf.Sin(x * 0.11f + 2.1f) * Mathf.Cos(z * 0.09f + 0.7f) * 2.2f
-                         + 0.8f * Mathf.Sin(z * 0.17f + x * 0.07f);
-            return Mathf.Clamp(waves + mask * hill, -0.5f, 3.2f);
+            float shoulder = Mathf.SmoothStep(4f, 14f, Mathf.Abs(x))
+                             * (0.7f + 0.35f * Mathf.Sin(x * 0.3f + z * 0.2f));
+            float far = Mathf.SmoothStep(14f, 32f, Mathf.Abs(x));
+            float hill = far * (2.6f + 2.4f * Mathf.Sin(x * 0.07f + 1.2f) * Mathf.Cos(z * 0.06f + 0.5f)
+                                 + 1.4f * Mathf.Sin(z * 0.13f + x * 0.05f));
+            return Mathf.Clamp(waves + shoulder + hill - CarveDepth(x, z), -4f, 8f);
         }
 
         /// Небо, солнце, туман, окружающий свет — сцена перестаёт быть «плоской заливкой».
@@ -28,10 +55,10 @@ namespace DI
             var sunGo = new GameObject("Sun");
             var l = sunGo.AddComponent<Light>();
             l.type = LightType.Directional;
-            l.intensity = 1.1f;
+            l.intensity = 1.05f;
             l.shadows = LightShadows.Soft;
-            l.color = new Color(1f, 0.94f, 0.82f);
-            sunGo.transform.rotation = Quaternion.Euler(48f, -35f, 0f);
+            l.color = new Color(1f, 0.93f, 0.8f);
+            sunGo.transform.rotation = Quaternion.Euler(55f, -35f, 0f);
 
             var sky = new Material(Shader.Find("Skybox/Procedural"));
             sky.SetFloat("_SunSize", 0.06f);
@@ -41,9 +68,9 @@ namespace DI
             RenderSettings.skybox = sky;
             RenderSettings.sun = l;
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.55f, 0.65f, 0.85f);
-            RenderSettings.ambientEquatorColor = new Color(0.45f, 0.5f, 0.55f);
-            RenderSettings.ambientGroundColor = new Color(0.35f, 0.32f, 0.28f);
+            RenderSettings.ambientSkyColor = new Color(0.4f, 0.48f, 0.6f);
+            RenderSettings.ambientEquatorColor = new Color(0.3f, 0.34f, 0.38f);
+            RenderSettings.ambientGroundColor = new Color(0.2f, 0.2f, 0.17f);
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
             RenderSettings.fogStartDistance = 70f;
@@ -73,12 +100,20 @@ namespace DI
             return go;
         }
 
-        /// Плато от верха centerTop.y до дна мира: выглядит земляным массивом, а не доской.
+        /// Плато от верха centerTop.y до глубоко под землёй: массив, не доска.
         public static GameObject SlabEarth(string name, Vector3 centerTop, Vector2 xz, Color color)
         {
-            float top = centerTop.y, bottom = -0.6f;
+            float top = centerTop.y, bottom = -3f;
             return Slab(name, new Vector3(centerTop.x, (top + bottom) * 0.5f, centerTop.z),
                 new Vector3(xz.x, top - bottom, xz.y), 0f, color);
+        }
+
+        /// Найти поверхность земли над точкой (для респаунов) — чтобы не родиться под землёй.
+        public static Vector3 SurfacePoint(Vector3 pos)
+        {
+            if (Physics.Raycast(new Ray(pos + Vector3.up * 80f, Vector3.down), out var hit, 300f))
+                return hit.point + Vector3.up * 0.2f;
+            return pos;
         }
 
         /// Последний пройденный чекпоинт — сюда возвращаем упавших за край мира.
@@ -86,8 +121,8 @@ namespace DI
 
         public static void TerrainMesh()
         {
-            const int half = 100, cell = 2; // мир 200×200 м — уровни уходят до z≈90
-            int n = half * 2 / cell;
+            const float half = 100f, cell = 1.25f; // мир 200×200 м, гладкие холмы
+            int n = Mathf.RoundToInt(half * 2 / cell);
             var verts = new Vector3[(n + 1) * (n + 1)];
             var uv = new Vector2[verts.Length];
             var tris = new int[n * n * 6];
@@ -121,8 +156,8 @@ namespace DI
                 float patch = Mathf.Sin(v * 0.21f + 1.3f) * Mathf.Cos(w * 0.17f + 0.4f)
                               + 0.5f * Mathf.Sin(v * 0.55f + w * 0.41f);
                 float shade = Mathf.Clamp01(0.5f + patch * 0.35f);
-                colors[i] = Color.Lerp(new Color(0.62f, 0.72f, 0.5f), new Color(0.45f, 0.58f, 0.36f), shade);
-                if (verts[i].y > 1.4f) colors[i] = Color.Lerp(colors[i], new Color(0.55f, 0.55f, 0.4f), 0.35f);
+                colors[i] = Color.Lerp(new Color(0.34f, 0.46f, 0.26f), new Color(0.2f, 0.32f, 0.17f), shade);
+                if (verts[i].y > 1.4f) colors[i] = Color.Lerp(colors[i], new Color(0.4f, 0.38f, 0.26f), 0.4f);
             }
             mesh.colors = colors;
 
@@ -202,6 +237,7 @@ namespace DI
                 if (Mathf.Abs(x) < 3.5f) continue; // не на дороге
                 float y = Ground(x, z);
                 float pick = (float)rnd.NextDouble();
+                if (CarveDepth(x, z) > 0.25f) continue; // не в воде
                 string rel = pick < 0.55f ? "nature/grass" : pick < 0.8f ? "nature/grass_leafs"
                     : pick < 0.92f ? "nature/mushroom_redGroup" : "nature/stump_roundDetailed";
                 float rot = (float)rnd.NextDouble() * 360f;
@@ -397,6 +433,37 @@ namespace DI
             visual.transform.position = new Vector3(center.x, surfaceY, center.z);
             visual.transform.localScale = new Vector3(size.x, 0.04f, size.z);
             Art.Transparent(visual.GetComponent<Renderer>(), new Color(0.3f, 0.5f, 0.68f, 0.8f), 0.85f);
+        }
+
+        /// Вода-эллипс точно по урезу берега: диск по сегментам, края под рельефом.
+        public static void WaterEllipse(Vector2 center, float rx, float rz, float surfaceY)
+        {
+            var waterGo = new GameObject("Water");
+            var col = waterGo.AddComponent<BoxCollider>();
+            col.isTrigger = true;
+            col.size = new Vector3(rx * 2f, 3f, rz * 2f);
+            waterGo.transform.position = new Vector3(center.x, surfaceY - 1.4f, center.y);
+            waterGo.AddComponent<WaterVolume>().surfaceY = surfaceY;
+
+            const int seg = 40;
+            var verts = new Vector3[seg + 1];
+            var tris = new int[seg * 3];
+            verts[seg] = Vector3.zero;
+            for (int i = 0; i < seg; i++)
+            {
+                float a = i / (float)seg * Mathf.PI * 2f;
+                verts[i] = new Vector3(Mathf.Cos(a) * rx, 0f, Mathf.Sin(a) * rz);
+                tris[i * 3] = seg; tris[i * 3 + 1] = (i + 1) % seg; tris[i * 3 + 2] = i;
+            }
+            var mesh = new Mesh { vertices = verts, triangles = tris };
+            mesh.RecalculateNormals();
+
+            var disc = new GameObject("WaterVisual");
+            disc.transform.position = new Vector3(center.x, surfaceY, center.y);
+            disc.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var wr = disc.AddComponent<MeshRenderer>();
+            Art.Transparent(wr, new Color(0.26f, 0.46f, 0.62f, 0.82f), 0.9f);
+            wr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; // иначе «парит» своя тень
         }
 
         /// Гроб с дедом внутри, дед и гроб получают ссылки друг на друга.

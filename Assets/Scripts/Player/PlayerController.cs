@@ -42,20 +42,26 @@ namespace DI
 
         void Update()
         {
-            // страховка: упал за край мира — на последний чекпоинт
+            // страховка: упал за край мира — на последний чекпоинт (строго НА землю)
             if (transform.position.y < -15f)
             {
-                rb.position = LevelHelpers.LastCheckpoint;
+                rb.position = LevelHelpers.SurfacePoint(LevelHelpers.LastCheckpoint);
                 rb.linearVelocity = Vector3.zero;
                 DIGameManager.I?.Event("Ты выпал из мира и вернулся на чекпоинт.");
             }
 
-            if (Time.time - lastGrounded <= coyoteTime && Input.GetKeyDown(KeyCode.Space))
+            // спам пробела больше не даёт полёт: прыжок только когда не летим вверх
+            if (Time.time - lastGrounded <= coyoteTime && Input.GetKeyDown(KeyCode.Space)
+                && rb.linearVelocity.y <= 0.5f)
             {
                 var v = rb.linearVelocity;
                 rb.linearVelocity = new Vector3(v.x, jumpImpulse, v.z);
                 lastGrounded = -10f;
             }
+
+            // терминальная скорость падения
+            var vel = rb.linearVelocity;
+            if (vel.y < -35f) rb.linearVelocity = new Vector3(vel.x, -35f, vel.z);
         }
 
         void FixedUpdate()

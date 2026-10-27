@@ -28,6 +28,7 @@ namespace DI
         void BuildOnce()
         {
             built = true;
+            LevelHelpers.SetCarves((new Vector3(0f, 0f, 42f), 3.2f, 5.5f, 0.9f)); // котлован пруда
             LevelHelpers.Sky();
             LevelHelpers.TerrainMesh();
             LevelHelpers.StartHouse();
@@ -39,12 +40,19 @@ namespace DI
             LevelHelpers.Slab("Road1", new Vector3(0f, 0.03f, 35f), new Vector3(3.4f, 0.1f, 2.4f), 0f, LevelHelpers.Dirt);
             LevelHelpers.Slab("Road2", new Vector3(0f, 0.03f, 56f), new Vector3(3.4f, 0.1f, 12f), 0f, LevelHelpers.Dirt);
             LevelHelpers.Slab("RoadSlopeUp2", new Vector3(0f, 0.84f, 68f), new Vector3(3.4f, 0.1f, 12.3f), -8f, LevelHelpers.Dirt);
-            LevelHelpers.SlabEarth("Plateau", new Vector3(0f, 1.75f, 81f), new Vector2(10f, 14f), LevelHelpers.Dirt);
+            LevelHelpers.SlabEarth("Plateau", new Vector3(0f, 1.75f, 81f), new Vector2(15f, 14f), LevelHelpers.Dirt);
 
-            // пруд с деревянным мостком
-            LevelHelpers.Water(new Vector3(0f, -0.3f, 42f), new Vector3(16f, 0.8f, 12f), 0.1f);
-            for (int z = 34; z < 50; z += 2)
-                Art.Model("nature/bridge_woodNarrow", new Vector3(0f, 0.3f, z + 1f), 0f, 1f, 0.25f);
+            // пруд в котловане: вода точно по урезу, мосток поперёк без зазоров
+            LevelHelpers.WaterEllipse(new Vector2(0f, 42f), 3.0f, 5.2f, 0.02f);
+            // мост одним куском, растянутым через весь пруд
+            var pondBridge = Art.Model("nature/bridge_woodNarrow", new Vector3(0f, 0.05f, 42f), 90f, 1f, 0.25f);
+            if (pondBridge != null)
+            {
+                pondBridge.transform.localScale = new Vector3(5.3f, 1f, 1f);
+                var b = new Bounds(pondBridge.transform.position, Vector3.zero);
+                foreach (var r in pondBridge.GetComponentsInChildren<MeshRenderer>()) b.Encapsulate(r.bounds);
+                pondBridge.transform.position += Vector3.up * (0.05f - b.min.y);
+            }
 
             LevelHelpers.Cemetery(1.70f, 82f);
 

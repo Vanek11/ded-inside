@@ -24,6 +24,7 @@ namespace DI
         float heldMass = 1f;
         float holdHeight = 0.9f;
         bool canGrab;
+        Rigidbody lastAnnounced;
         ThirdPersonCamera camCtrl;
 
         public bool IsHolding => held != null;
@@ -126,7 +127,11 @@ namespace DI
             held = target;
             heldMass = Mathf.Max(1f, target.mass);
             localPoint = target.transform.InverseTransformPoint(hit.point);
-            DIGameManager.I?.Event("Взялись!");
+            if (lastAnnounced != target) // без спама «Взялись!» при повторных попытках
+            {
+                lastAnnounced = target;
+                DIGameManager.I?.Event("Взялись!");
+            }
         }
 
         void FixedUpdate()
