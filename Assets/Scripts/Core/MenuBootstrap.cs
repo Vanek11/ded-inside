@@ -37,6 +37,10 @@ namespace DI
         {
             if (!built) BuildOnce();
 
+#if ADMIN
+            if (GetComponent<AdminPanel>() == null) gameObject.AddComponent<AdminPanel>();
+#endif
+
             // меню-полечка: генерируется в рантайме, зациклена
             var src = GetComponent<AudioSource>();
             if (src == null)

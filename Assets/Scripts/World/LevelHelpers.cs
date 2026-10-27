@@ -363,6 +363,9 @@ namespace DI
             Crow.Spawn(new Vector3(0f, 9f, 10f), 40f);
             var cam = UnityEngine.Object.FindFirstObjectByType<Camera>();
             if (cam != null) Art.SetupPostFx(cam);
+#if ADMIN
+            levelGo.AddComponent<AdminPanel>(); // только в dev-сборке
+#endif
             if (SessionState.Mode != SessionMode.Solo)
                 levelGo.AddComponent<DINetworkManager>().Bootstrap(SessionState.Mode, SessionState.Ip);
         }
