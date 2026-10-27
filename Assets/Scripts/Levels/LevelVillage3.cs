@@ -46,6 +46,8 @@ namespace DI
             LevelHelpers.Tree(10f, 62f); LevelHelpers.Tree(-11f, 70f); LevelHelpers.Tree(11f, 80f);
 
             LevelHelpers.CoffinWithGrandpa(new Vector3(0f, 0.84f, -19f), Quaternion.identity);
+            Pedestrian.Spawn(new Vector3(0.8f, 1.1f, -7f), Vector3.forward, 5f);
+            Pedestrian.Spawn(new Vector3(0.9f, 4.6f, 20f), Vector3.forward, 5f);
             LevelHelpers.SpawnPlayer(new Vector3(1.5f, 1.2f, -15f));
             LevelHelpers.BuildCane(new Vector3(2.4f, 0.35f, -17.5f));
             LevelHelpers.WillPost(new Vector3(6f, 0.05f, 24f));
